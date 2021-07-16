@@ -25,9 +25,20 @@ gem 'jbuilder', '~> 2.7'
 # Use Active Storage variant
 # gem 'image_processing', '~> 1.2'
 
+#Use Postgresql
+gem 'pg'
+
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
+  #Configure the code analyser
+  gem 'rubocop', require: false
+  gem 'rubocop-rails', require: false
+  gem 'rubocop-rspec', require: false
+  #Integrate overcommit hooks
+  gem 'overcommit', require: false
+  #Configure the test suite
+  gem 'rspec-rails'
 end
 
 group :development do
