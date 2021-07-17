@@ -25,29 +25,32 @@ gem 'jbuilder', '~> 2.7'
 # Use Active Storage variant
 # gem 'image_processing', '~> 1.2'
 
-#Use Postgresql
+# Use PostgreSQL
 gem 'pg'
+
+# Use Faraday HTTP Client
+gem 'faraday', '~> 1.5', '>= 1.5.1'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
-  gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
-  #Configure the code analyser
+  gem 'pry-rails'
+  # Configure the code analyser
   gem 'rubocop', require: false
   gem 'rubocop-rails', require: false
   gem 'rubocop-rspec', require: false
-  #Integrate overcommit hooks
+  # Integrate overcommit hooks
   gem 'overcommit', require: false
-  #Configure the test suite
+  # Configure the test suite
   gem 'rspec-rails'
 end
 
 group :development do
   # Access an interactive console on exception pages or by calling 'console' anywhere in the code.
   gem 'web-console', '>= 4.1.0'
-  # Display performance information such as SQL time and flame graphs for each request in your browser.
+  # Display performance information such as SQL time and flame graphs for each request in browser.
   # Can be configured to work on production as well see: https://github.com/MiniProfiler/rack-mini-profiler/blob/master/README.md
-  gem 'rack-mini-profiler', '~> 2.0'
   gem 'listen', '~> 3.3'
+  gem 'rack-mini-profiler', '~> 2.0'
   # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
   gem 'spring'
 end
