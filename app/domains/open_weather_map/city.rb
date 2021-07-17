@@ -20,5 +20,10 @@ module OpenWeatherMap
     def temp
       (@temp_k - 273.15).round(2)
     end
+
+    def self.parse(response)
+      new(id: response['id'], lat: response['coord']['lat'], lon: response['coord']['lon'],
+          name: response['name'], temp_k: response['main']['temp'])
+    end
   end
 end
