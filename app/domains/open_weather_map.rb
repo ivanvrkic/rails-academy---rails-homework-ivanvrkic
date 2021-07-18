@@ -9,4 +9,8 @@ module OpenWeatherMap
     response = Faraday.get(url)
     City.parse(JSON.parse(response.body))
   end
+
+  def self.cities(city_names)
+    city_names.map { |c| city(c) }.compact
+  end
 end
