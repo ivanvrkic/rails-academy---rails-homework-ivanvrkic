@@ -53,7 +53,7 @@ RSpec.describe Booking, type: :model do
     company = Company.create!(name: 'Company1')
     flight = Flight.create!(name: 'Flight1', company_id: company.id,
                             departs_at: DateTime.current - 1,
-                            arrives_at: DateTime.current, base_price: 10)
+                            arrives_at: DateTime.current, base_price: 10, no_of_seats: 10)
     booking = described_class.new(flight_id: flight.id)
     booking.valid?
     expect(booking.errors[:flight]).to include('can not be in the past')
