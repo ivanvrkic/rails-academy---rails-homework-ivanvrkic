@@ -1,7 +1,7 @@
 module OpenWeatherMap
   BASE_URL = 'https://api.openweathermap.org'.freeze
   URL_PATH = '/data/2.5'.freeze
-  API_KEY=Rails.application.credentials.open_weather_map_api_key.freeze
+  API_KEY = Rails.application.credentials.open_weather_map_api_key.freeze
   def self.city(city_name)
     id = Resolver.city_id(city_name)
     return if id.nil?
