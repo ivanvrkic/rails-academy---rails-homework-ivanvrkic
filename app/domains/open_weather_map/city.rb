@@ -1,7 +1,7 @@
 module OpenWeatherMap
   class City
     include Comparable
-    attr_reader :id, :lat, :lon, :name
+    attr_reader :id, :lat, :lon, :name, :temp_k
 
     def initialize(id:, lat:, lon:, name:, **args)
       @id = id
@@ -19,21 +19,19 @@ module OpenWeatherMap
     end
 
     def temp
-      (@temp_k - 273.15).round(2)
+      (temp_k - 273.15).round(2)
     end
 
     def self.parse(response)
-      new(id: response['id'], lat: response['coord']['lat'], lon: response['coord']['lon'],
-          name: response['name'], temp_k: response['main']['temp'],
-          weather: response['weather'][0]['main'])
+      new(id: response['id'], lat: response.dig('coord', 'lat'), lon: response.dig('coord', 'lon'),
+          name: response['name'], temp_k: response.dig('main', 'temp'),
+          weather: response.dig('weather', 0, 'main'))
     end
 
     def nearby(count = 5)
       count = 49 if count > 49
-      url = "https://api.openweathermap.org/data/2.5/find?
-             lat=#{@lat}&lon=#{@lon}&cnt=#{count + 1}
-             &appid=#{Rails.application.credentials.open_weather_map_api_key}"
-      response = Faraday.get(url)
+      url_params = "/find?lat=#{@lat}&lon=#{@lon}&cnt=#{count + 1}&appid=#{API_KEY}"
+      response = Faraday.new(url: BASE_URL).get(URL_PATH + url_params)
       JSON.parse(response.body)['list'].map { |c| City.parse(c) }.drop(1).sort
     end
 
