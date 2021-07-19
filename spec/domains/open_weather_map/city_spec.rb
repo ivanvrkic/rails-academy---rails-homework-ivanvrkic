@@ -51,7 +51,8 @@
 #   describe '#City.parse' do
 #     it 'correctly initialises returned instance' do
 #       city = described_class.parse({ 'coord' => { 'lat' => 145.77, 'lon' => -16.92 },
-#                                      'main' => { 'temp' => 300.15 }, 'id' => 2_172_797, 'name' => 'Cairns' })
+#                                      'main' => { 'temp' => 300.15 }, 'id' => 2_172_797,
+#                                      'name' => 'Cairns' })
 #       expect(city.id).to eq(2_172_797)
 #       expect(city.lat).to eq(145.77)
 #       expect(city.lon).to eq(-16.92)

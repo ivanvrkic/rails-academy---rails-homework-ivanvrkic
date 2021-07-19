@@ -6,7 +6,6 @@ class CreateFlights < ActiveRecord::Migration[6.1]
       t.integer :base_price
       t.datetime :departs_at
       t.datetime :arrives_at
-      
       t.belongs_to :company, index: true, foreign_key: true
 
       t.timestamps
