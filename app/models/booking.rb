@@ -19,7 +19,7 @@ class Booking < ApplicationRecord
   validates :no_of_seats, numericality: { greater_than: 0 }
   validate :not_past
   def not_past
-    return if flight && flight.departs_at && flight.departs_at > DateTime.current
+    return if flight&.departs_at && flight.departs_at > DateTime.current
 
     errors.add(:flight, 'can not be in the past')
   end
