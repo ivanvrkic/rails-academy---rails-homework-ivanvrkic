@@ -11,6 +11,16 @@
 #  updated_at  :datetime         not null
 #
 class Booking < ApplicationRecord
-    belongs_to :user
-    belongs_to :flight
+  belongs_to :user
+  belongs_to :flight
+  validates :seat_price, presence: true
+  validates :seat_price, numericality: { greater_than: 0 }
+  validates :no_of_seats, presence: true
+  validates :no_of_seats, numericality: { greater_than: 0 }
+  validate :not_past
+  def not_past
+    return if flight && flight.departs_at && flight.departs_at > DateTime.current
+
+    errors.add(:flight, 'can not be in the past')
+  end
 end

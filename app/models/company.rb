@@ -8,5 +8,8 @@
 #  updated_at :datetime         not null
 #
 class Company < ApplicationRecord
-    has_many :flights, dependent: :destroy
+  has_many :flights, dependent: :destroy
+
+  validates :name, presence: true
+  validates :name, uniqueness: { case_sensitive: false }
 end
