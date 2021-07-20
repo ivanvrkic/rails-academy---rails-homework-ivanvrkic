@@ -29,10 +29,10 @@ module OpenWeatherMap
     end
 
     def nearby(count = 5)
-      count = 49 if count > 49
-      url_params = "/find?lat=#{@lat}&lon=#{@lon}&cnt=#{count + 1}&appid=#{API_KEY}"
+      count = 50 if count > 50
+      url_params = "/find?lat=#{@lat}&lon=#{@lon}&cnt=#{count}&appid=#{API_KEY}"
       response = Faraday.new(url: BASE_URL).get(URL_PATH + url_params)
-      JSON.parse(response.body)['list'].map { |c| City.parse(c) }.drop(1).sort
+      JSON.parse(response.body)['list'].map { |c| City.parse(c) }.sort
     end
 
     def coldest_nearby(*args)
