@@ -35,8 +35,8 @@ module OpenWeatherMap
       JSON.parse(response.body)['list'].map { |c| City.parse(c) }.drop(1).sort
     end
 
-    def coldest_nearby(count = 5)
-      nearby(count)[0]
+    def coldest_nearby(*args)
+      nearby(*args)[0]
     end
   end
 end
