@@ -28,8 +28,9 @@ class Flight < ApplicationRecord
   validates :no_of_seats, presence: true
   validates :no_of_seats, numericality: { greater_than: 0 }
 
-  validate :departs_before
-  def departs_before
+  validate :departs_is_before_arrives
+
+  def departs_before_is_before_arrives
     return if departs_at && arrives_at && departs_at < arrives_at
 
     errors.add(:departs_at, 'must be before arriving date')
