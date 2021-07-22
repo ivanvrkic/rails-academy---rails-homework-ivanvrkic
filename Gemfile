@@ -37,7 +37,9 @@ group :development, :test do
   # Integrate overcommit hooks
   gem 'overcommit', require: false
   # Configure the test suite
+  gem 'factory_bot_rails'
   gem 'rspec-rails'
+  gem 'shoulda-matchers'
 end
 
 group :development do
@@ -49,6 +51,8 @@ group :development do
   gem 'rack-mini-profiler', '~> 2.0'
   # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
   gem 'spring'
+  # Add annotations to models
+  gem 'annotate'
 end
 
 group :test do
