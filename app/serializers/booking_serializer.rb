@@ -1,4 +1,4 @@
-class FlightSerializer < Blueprinter::Base
+class BookingSerializer < Blueprinter::Base
   identifier :id
   field :no_of_seats
   field :seat_price
