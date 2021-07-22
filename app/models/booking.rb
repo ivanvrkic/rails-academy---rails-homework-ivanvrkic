@@ -14,11 +14,11 @@ class Booking < ApplicationRecord
   belongs_to :user
   belongs_to :flight
 
-  validates :seat_price, presence: true
-  validates :seat_price, numericality: { greater_than: 0 }
+  validates :seat_price, presence: true,
+                         numericality: { greater_than: 0 }
 
-  validates :no_of_seats, presence: true
-  validates :no_of_seats, numericality: { greater_than: 0 }
+  validates :no_of_seats, presence: true,
+                          numericality: { greater_than: 0 }
 
   validate :departs_is_not_past
 

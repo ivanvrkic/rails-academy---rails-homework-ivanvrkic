@@ -23,15 +23,18 @@ module OpenWeatherMap
     end
 
     def self.parse(response)
-      new(id: response['id'], lat: response.dig('coord', 'lat'), lon: response.dig('coord', 'lon'),
-          name: response['name'], temp_k: response.dig('main', 'temp'),
+      new(id: response['id'],
+          lat: response.dig('coord', 'lat'),
+          lon: response.dig('coord', 'lon'),
+          name: response['name'],
+          temp_k: response.dig('main', 'temp'),
           weather: response.dig('weather', 0, 'main'))
     end
 
     def nearby(count = 5)
       count = 50 if count > 50
-      url_params = "/find?lat=#{@lat}&lon=#{@lon}&cnt=#{count}&appid=#{API_KEY}"
-      response = Faraday.new(url: BASE_URL).get(URL_PATH + url_params)
+      params = { lat: lat, lon: lon, cnt: count, appid: API_KEY }
+      response = Faraday.new(url: BASE_URL).get("#{URL_PATH}/find", params)
       JSON.parse(response.body)['list'].map { |c| City.parse(c) }.sort
     end
 

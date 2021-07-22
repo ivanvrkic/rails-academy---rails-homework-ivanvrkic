@@ -12,7 +12,6 @@
 #  created_at  :datetime         not null
 #  updated_at  :datetime         not null
 #
-require 'rails_helper'
 
 RSpec.describe Flight, type: :model do
   let(:company) { Company.create!(name: 'Company') }
@@ -115,5 +114,28 @@ RSpec.describe Flight, type: :model do
     flight.valid?
 
     expect(flight.errors[:departs_at]).to include('must be before arriving date')
+  end
+
+  describe 'associations' do
+    it { is_expected.to belong_to(:company).class_name('Company') }
+
+    it { is_expected.to have_many(:bookings).class_name('Booking') }
+  end
+
+  describe 'validations' do
+    subject { FactoryBot.build(:flight) }
+
+    it { is_expected.to validate_presence_of(:name) }
+    it { is_expected.to validate_uniqueness_of(:name).case_insensitive.scoped_to(:company_id) }
+
+    it { is_expected.to validate_presence_of(:departs_at) }
+
+    it { is_expected.to validate_presence_of(:arrives_at) }
+
+    it { is_expected.to validate_presence_of(:base_price) }
+    it { is_expected.to validate_numericality_of(:base_price) }
+
+    it { is_expected.to validate_presence_of(:no_of_seats) }
+    it { is_expected.to validate_numericality_of(:no_of_seats) }
   end
 end

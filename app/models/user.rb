@@ -12,10 +12,10 @@
 class User < ApplicationRecord
   has_many :bookings, dependent: :destroy
 
-  validates :email, presence: true
-  validates :email, uniqueness: { case_sensitive: false }
-  validates :email, format: /\A[^@\s]+@([^@\s]+\.)+[^@\s]+\z/
+  validates :email, presence: true,
+                    uniqueness: { case_sensitive: false },
+                    format: /\A[^@\s]+@([^@\s]+\.)+[^@\s]+\z/
 
-  validates :first_name, presence: true
-  validates :first_name, length: { minimum: 2 }
+  validates :first_name, presence: true,
+                         length: { minimum: 2 }
 end

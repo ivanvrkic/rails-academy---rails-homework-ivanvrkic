@@ -7,7 +7,6 @@
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
 #
-require 'rails_helper'
 
 RSpec.describe Company, type: :model do
   it 'is invalid without an name' do
@@ -34,5 +33,16 @@ RSpec.describe Company, type: :model do
     company.valid?
 
     expect(company.errors[:name]).to include('has already been taken')
+  end
+
+  describe 'associations' do
+    it { is_expected.to have_many(:flights).class_name('Flight') }
+  end
+
+  describe 'validations' do
+    subject { FactoryBot.build(:company) }
+
+    it { is_expected.to validate_presence_of(:name) }
+    it { is_expected.to validate_uniqueness_of(:name).case_insensitive }
   end
 end

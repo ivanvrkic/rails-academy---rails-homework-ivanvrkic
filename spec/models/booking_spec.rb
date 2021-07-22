@@ -10,7 +10,6 @@
 #  created_at  :datetime         not null
 #  updated_at  :datetime         not null
 #
-require 'rails_helper'
 
 RSpec.describe Booking, type: :model do
   it 'is invalid without a seat price' do
@@ -71,5 +70,21 @@ RSpec.describe Booking, type: :model do
     booking.valid?
 
     expect(booking.errors[:flight]).to include('can not be in the past')
+  end
+
+  describe 'associations' do
+    it { is_expected.to belong_to(:user).class_name('User') }
+
+    it { is_expected.to belong_to(:flight).class_name('Flight') }
+  end
+
+  describe 'validations' do
+    subject { FactoryBot.build(:booking) }
+
+    it { is_expected.to validate_presence_of(:seat_price) }
+    it { is_expected.to validate_numericality_of(:seat_price) }
+
+    it { is_expected.to validate_presence_of(:no_of_seats) }
+    it { is_expected.to validate_numericality_of(:no_of_seats) }
   end
 end

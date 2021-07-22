@@ -13,7 +13,6 @@
 ActiveRecord::Schema.define(version: 2021_07_19_133558) do
 
   # These are extensions that must be enabled in order to support this database
-  enable_extension "citext"
   enable_extension "plpgsql"
 
   create_table "bookings", force: :cascade do |t|
@@ -28,7 +27,7 @@ ActiveRecord::Schema.define(version: 2021_07_19_133558) do
   end
 
   create_table "companies", force: :cascade do |t|
-    t.citext "name", null: false
+    t.string "name", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["name"], name: "index_companies_on_name", unique: true

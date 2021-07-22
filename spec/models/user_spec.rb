@@ -8,8 +8,7 @@
 #  email      :string           not null
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
-#
-require 'rails_helper'
+# rspe
 
 RSpec.describe User, type: :model do
   it 'is invalid without a first name' do
@@ -60,5 +59,19 @@ RSpec.describe User, type: :model do
     user.valid?
 
     expect(user.errors[:email]).to include('is invalid')
+  end
+
+  describe 'associations' do
+    it { is_expected.to have_many(:bookings).class_name('Booking') }
+  end
+
+  describe 'validations' do
+    subject { FactoryBot.build(:user) }
+
+    it { is_expected.to validate_presence_of(:first_name) }
+    it { is_expected.to validate_length_of(:first_name) }
+
+    it { is_expected.to validate_presence_of(:email) }
+    it { is_expected.to validate_uniqueness_of(:email).case_insensitive }
   end
 end
