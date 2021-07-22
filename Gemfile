@@ -37,6 +37,7 @@ group :development, :test do
   # Integrate overcommit hooks
   gem 'overcommit', require: false
   # Configure the test suite
+  gem 'blueprinter'
   gem 'factory_bot_rails'
   gem 'rspec-rails'
   gem 'shoulda-matchers'
