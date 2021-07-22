@@ -25,14 +25,10 @@ gem 'jbuilder', '~> 2.7'
 # Use Active Storage variant
 # gem 'image_processing', '~> 1.2'
 
-# Use PostgreSQL
+gem 'faraday', '~> 1.5', '>= 1.5.1'
 gem 'pg'
 
-# Use Faraday HTTP Client
-gem 'faraday', '~> 1.5', '>= 1.5.1'
-
 group :development, :test do
-  # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'pry-rails'
   # Configure the code analyser
   gem 'rubocop', require: false
