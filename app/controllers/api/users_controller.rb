@@ -6,11 +6,7 @@ module Api
 
     def show
       user = User.find(params[:id])
-      if user
-        render json: UserSerializer.render(user, root: :user)
-      else
-        render json: { errors: 'not found' }, status: :not_found
-      end
+      render json: UserSerializer.render(user, root: :user)
     end
 
     def create

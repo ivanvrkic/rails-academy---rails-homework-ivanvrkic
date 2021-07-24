@@ -6,11 +6,7 @@ module Api
 
     def show
       flight = Flight.find(params[:id])
-      if flight
-        render json: FlightSerializer.render(flight, root: :flight)
-      else
-        render json: { errors: 'not found' }, status: :not_found
-      end
+      render json: FlightSerializer.render(flight, root: :flight)
     end
 
     def create

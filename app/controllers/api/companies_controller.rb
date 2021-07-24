@@ -6,15 +6,11 @@ module Api
 
     def show
       company = Company.find(params[:id])
-      if company
-        render json: CompanySerializer.render(company, root: :company)
-      else
-        render json: { errors: 'not found' }, status: :not_found
-      end
+      render json: CompanySerializer.render(company, root: :company)
     end
 
     def create
-      company = fCompany.new(company_params)
+      company = Company.new(company_params)
       if company.save
         render json: company, status: :created
       else
