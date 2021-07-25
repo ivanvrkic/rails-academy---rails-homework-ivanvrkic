@@ -8,5 +8,7 @@ module JsonapiSerializer
     attribute :seat_price
     attribute :flight_id
     attribute :user_id
+    attribute :created_at
+    attribute :updated_at
   end
 end

@@ -10,5 +10,7 @@ module JsonapiSerializer
     attribute :departs_at
     attribute :arrives_at
     attribute :company_id
+    attribute :created_at
+    attribute :updated_at
   end
 end
