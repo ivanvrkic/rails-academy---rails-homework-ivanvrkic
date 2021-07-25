@@ -65,12 +65,12 @@ RSpec.describe 'Users API', type: :request do
             headers: { HTTP_X_API_SERIALIZER: 'jsonapi-serializer' }
 
         expect(response).to have_http_status(:ok)
-        expect(json_body).to include('jsonapi-serializer' => { 'user' => { 'first_name' => anything,
-                                                                           'id' => anything,
-                                                                           'email' => anything,
-                                                                           'last_name' => anything,
-                                                                           'created_at' => anything,
-                                                                           'updated_at' => anything }})
+        expect(json_body['jsonapi-serializer']).to include('user' => { 'first_name' => anything,
+                                                                       'id' => anything,
+                                                                       'email' => anything,
+                                                                       'last_name' => anything,
+                                                                       'created_at' => anything,
+                                                                       'updated_at' => anything })
       end
     end
   end
@@ -88,7 +88,7 @@ RSpec.describe 'Users API', type: :request do
         expect(User.count).to eq(count + 1)
         expect(response).to have_http_status(:created)
         expect(json_body['user']).to include('first_name' => 'User', 'last_name' => 'User',
-                                     'email' => 'newuser@mail.com')
+                                             'email' => 'newuser@mail.com')
       end
     end
 
@@ -118,7 +118,7 @@ RSpec.describe 'Users API', type: :request do
         expect(user.email).to eq('newuser@mail.com')
         expect(response).to have_http_status(:ok)
         expect(json_body['user']).to include('first_name' => 'User', 'last_name' => 'User',
-                                     'email' => 'newuser@mail.com', 'id' => users.first.id)
+                                             'email' => 'newuser@mail.com', 'id' => users.first.id)
       end
     end
 

@@ -111,7 +111,7 @@ RSpec.describe 'Flights API', type: :request do
         expect(flight.no_of_seats).to eq(4)
         expect(response).to have_http_status(:ok)
         expect(json_body['flight']).to include('name' => 'Newflight1', 'base_price' => 999,
-                                     'no_of_seats' => 4, 'id' => flights.first.id)
+                                               'no_of_seats' => 4, 'id' => flights.first.id)
       end
     end
 

@@ -110,7 +110,7 @@ RSpec.describe 'Bookings API', type: :request do
         expect(booking.no_of_seats).to eq(4)
         expect(response).to have_http_status(:ok)
         expect(json_body['booking']).to include('seat_price' => 1000,
-                                     'no_of_seats' => 4, 'id' => bookings.first.id)
+                                                'no_of_seats' => 4, 'id' => bookings.first.id)
       end
     end
 
