@@ -18,7 +18,7 @@ module Api
     def create
       company = Company.new(company_params)
       if company.save
-        render json: company, status: :created
+        render json: { company: company }, status: :created
       else
         render json: { errors: company.errors }, status: :bad_request
       end
@@ -27,7 +27,7 @@ module Api
     def update
       company = Company.find(params[:id])
       if company&.update(company_params)
-        render json: company, status: :ok
+        render json: { company: company }, status: :ok
       else
         render json: { errors: company.errors }, status: :bad_request
       end
@@ -36,7 +36,7 @@ module Api
     def destroy
       company = Company.find(params[:id])
       if company&.destroy
-        render json: company, status: :ok
+        render json: company, status: :no_content
       else
         render json: { errors: company.errors }, status: :bad_request
       end
