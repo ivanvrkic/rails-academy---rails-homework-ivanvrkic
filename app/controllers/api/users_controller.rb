@@ -1,12 +1,17 @@
 module Api
   class UsersController < ApplicationController
     def index
-      render json: UserSerializer.render(User.all, root: :users)
+      render json: jsonapi_serializer? ? jsonapi_all_users : blueprinter_all_users
     end
 
     def show
       user = User.find(params[:id])
-      render json: UserSerializer.render(user, root: :user)
+      render json: if jsonapi_serializer?
+                     jsonapi_user(user)
+                   else
+                     UserSerializer.render(user,
+                                           root: :user)
+                   end
     end
 
     def create
@@ -43,6 +48,18 @@ module Api
                                    :email,
                                    :first_name,
                                    :last_name)
+    end
+
+    def jsonapi_all_users
+      JsonapiSerializer::UserSerializer.new(User.all).public_send(json_root_method)
+    end
+
+    def jsonapi_user(user)
+      JsonapiSerializer::UserSerializer.new(user).json_with_root
+    end
+
+    def blueprinter_all_users
+      root? ? UserSerializer.render(User.all, root: :users) : UserSerializer.render(User.all)
     end
   end
 end

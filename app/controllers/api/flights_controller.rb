@@ -1,12 +1,17 @@
 module Api
   class FlightsController < ApplicationController
     def index
-      render json: FlightSerializer.render(Flight.all, root: :flights)
+      render json: jsonapi_serializer? ? jsonapi_all_flights : blueprinter_all_flights
     end
 
     def show
       flight = Flight.find(params[:id])
-      render json: FlightSerializer.render(flight, root: :flight)
+      render json: if jsonapi_serializer?
+                     jsonapi_flight(flight)
+                   else
+                     FlightSerializer.render(flight,
+                                             root: :flight)
+                   end
     end
 
     def create
@@ -46,6 +51,23 @@ module Api
                                      :departs_at,
                                      :name,
                                      :no_of_seats)
+    end
+
+    def jsonapi_all_flights
+      JsonapiSerializer::FlightSerializer.new(Flight.all).public_send(json_root_method)
+    end
+
+    def jsonapi_flight(flight)
+      JsonapiSerializer::FlightSerializer.new(flight).json_with_root
+    end
+
+    def blueprinter_all_flights
+      if root?
+        FlightSerializer.render(Flight.all,
+                                root: :flights)
+      else
+        FlightSerializer.render(Flight.all)
+      end
     end
   end
 end

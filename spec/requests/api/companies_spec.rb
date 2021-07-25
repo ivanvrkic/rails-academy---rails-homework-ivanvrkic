@@ -3,20 +3,64 @@ RSpec.describe 'Companies API', type: :request do
   let!(:companies) { create_list(:company, 3) }
 
   describe 'GET /companies' do
-    it 'successfully returns a list of companies' do
-      get '/api/companies'
+    context 'when using blueprinter with root' do
+      it 'successfully returns a list of companies' do
+        get '/api/companies'
 
-      expect(response).to have_http_status(:ok)
-      expect(json_body['companies'].count).to eq(3)
+        expect(response).to have_http_status(:ok)
+        expect(json_body['companies'].count).to eq(3)
+      end
+    end
+
+    context 'when using blueprinter without root' do
+      it 'successfully returns a list of companies' do
+        get '/api/companies',
+            headers: { HTTP_X_API_SERIALIZER_ROOT: '0' }
+
+        expect(response).to have_http_status(:ok)
+        expect(json_body.count).to eq(3)
+      end
+    end
+
+    context 'when using jsonapi-serializer with root' do
+      it 'successfully returns a list of companies' do
+        get '/api/companies',
+            headers: { HTTP_X_API_SERIALIZER: 'jsonapi-serializer' }
+
+        expect(response).to have_http_status(:ok)
+        expect(json_body['jsonapi-serializer']['companies'].count).to eq(3)
+      end
+    end
+
+    context 'when using jsonapi-serializer without root' do
+      it 'successfully returns a list of companies' do
+        get '/api/companies',
+            headers: { HTTP_X_API_SERIALIZER: 'jsonapi-serializer',
+                       HTTP_X_API_SERIALIZER_ROOT: '0' }
+
+        expect(response).to have_http_status(:ok)
+        expect(json_body['jsonapi-serializer'].count).to eq(3)
+      end
     end
   end
 
   describe 'GET /companies/:id' do
-    it 'returns a single company' do
-      get "/api/companies/#{companies.first.id}"
+    context 'when using blueprinter' do
+      it 'returns a single company' do
+        get "/api/companies/#{companies.first.id}"
 
-      expect(response).to have_http_status(:ok)
-      expect(json_body).to include('company' => { 'name' => anything, 'id' => anything })
+        expect(response).to have_http_status(:ok)
+        expect(json_body).to include('company' => { 'name' => anything, 'id' => anything })
+      end
+    end
+
+    context 'when using jsonapi-serializer' do
+      it 'successfully returns a list of companies' do
+        get "/api/companies/#{companies.first.id}",
+            headers: { HTTP_X_API_SERIALIZER: 'jsonapi-serializer' }
+        expect(response).to have_http_status(:ok)
+        expect(json_body).to include('jsonapi-serializer' => { 'company' => anything })
+      end
     end
   end
 

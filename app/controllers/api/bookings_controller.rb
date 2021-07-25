@@ -1,12 +1,18 @@
 module Api
   class BookingsController < ApplicationController
     def index
-      render json: BookingSerializer.render(Booking.all, root: :bookings)
+      render json: jsonapi_serializer? ? jsonapi_all_bookings : blueprinter_all_bookings
     end
 
     def show
       booking = Booking.find(params[:id])
-      render json: BookingSerializer.render(booking, root: :booking)
+      render json: if jsonapi_serializer?
+                     jsonapi_booking(booking)
+                   else
+                     BookingSerializer.render(
+                       booking, root: :booking
+                     )
+                   end
     end
 
     def create
@@ -44,6 +50,23 @@ module Api
                                       :no_of_seats,
                                       :seat_price,
                                       :user_id)
+    end
+
+    def jsonapi_all_bookings
+      JsonapiSerializer::BookingSerializer.new(Booking.all).public_send(json_root_method)
+    end
+
+    def jsonapi_booking(booking)
+      JsonapiSerializer::BookingSerializer.new(booking).json_with_root
+    end
+
+    def blueprinter_all_bookings
+      if root?
+        BookingSerializer.render(Booking.all,
+                                 root: :bookings)
+      else
+        BookingSerializer.render(Booking.all)
+      end
     end
   end
 end

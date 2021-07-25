@@ -3,23 +3,67 @@ RSpec.describe 'Users API', type: :request do
   let!(:users) { create_list(:user, 3) }
 
   describe 'GET /users' do
-    it 'successfully returns a list of users' do
-      get '/api/users'
+    context 'when using blueprinter with root' do
+      it 'successfully returns a list of users' do
+        get '/api/users'
 
-      expect(response).to have_http_status(:ok)
-      expect(json_body['users'].count).to eq(3)
+        expect(response).to have_http_status(:ok)
+        expect(json_body['users'].count).to eq(3)
+      end
+    end
+
+    context 'when using blueprinter without root' do
+      it 'successfully returns a list of users' do
+        get '/api/users',
+            headers: { HTTP_X_API_SERIALIZER_ROOT: '0' }
+
+        expect(response).to have_http_status(:ok)
+        expect(json_body.count).to eq(3)
+      end
+    end
+
+    context 'when using jsonapi-serializer with root' do
+      it 'successfully returns a list of users' do
+        get '/api/users',
+            headers: { HTTP_X_API_SERIALIZER: 'jsonapi-serializer' }
+
+        expect(response).to have_http_status(:ok)
+        expect(json_body['jsonapi-serializer']['users'].count).to eq(3)
+      end
+    end
+
+    context 'when using jsonapi-serializer without root' do
+      it 'successfully returns a list of users' do
+        get '/api/users',
+            headers: { HTTP_X_API_SERIALIZER: 'jsonapi-serializer',
+                       HTTP_X_API_SERIALIZER_ROOT: '0' }
+
+        expect(response).to have_http_status(:ok)
+        expect(json_body['jsonapi-serializer'].count).to eq(3)
+      end
     end
   end
 
   describe 'GET /users/:id' do
-    it 'returns a single user' do
-      get "/api/users/#{users.first.id}"
+    context 'when using blueprinter' do
+      it 'returns a single user' do
+        get "/api/users/#{users.first.id}"
 
-      expect(response).to have_http_status(:ok)
-      expect(json_body).to include('user' => { 'first_name' => anything,
-                                               'id' => anything,
-                                               'email' => anything,
-                                               'last_name' => anything })
+        expect(response).to have_http_status(:ok)
+        expect(json_body).to include('user' => { 'first_name' => anything,
+                                                 'id' => anything,
+                                                 'email' => anything,
+                                                 'last_name' => anything })
+      end
+    end
+
+    context 'when using jsonapi-serializer' do
+      it 'successfully returns a list of users' do
+        get "/api/users/#{users.first.id}",
+            headers: { HTTP_X_API_SERIALIZER: 'jsonapi-serializer' }
+        expect(response).to have_http_status(:ok)
+        expect(json_body).to include('jsonapi-serializer' => { 'user' => anything })
+      end
     end
   end
 

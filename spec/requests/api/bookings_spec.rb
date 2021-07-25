@@ -5,24 +5,66 @@ RSpec.describe 'Bookings API', type: :request do
   let(:departing_date) { 6.hours.from_now }
 
   describe 'GET /bookings' do
-    it 'successfully returns a list of bookings' do
-      get '/api/bookings'
+    context 'when using blueprinter with root' do
+      it 'successfully returns a list of bookings' do
+        get '/api/bookings'
 
-      expect(response).to have_http_status(:ok)
-      expect(json_body['bookings'].count).to eq(3)
+        expect(response).to have_http_status(:ok)
+        expect(json_body['bookings'].count).to eq(3)
+      end
+    end
+
+    context 'when using blueprinter without root' do
+      it 'successfully returns a list of bookings' do
+        get '/api/bookings',
+            headers: { HTTP_X_API_SERIALIZER_ROOT: '0' }
+
+        expect(response).to have_http_status(:ok)
+        expect(json_body.count).to eq(3)
+      end
+    end
+
+    context 'when using jsonapi-serializer with root' do
+      it 'successfully returns a list of bookings' do
+        get '/api/bookings',
+            headers: { HTTP_X_API_SERIALIZER: 'jsonapi-serializer' }
+        expect(response).to have_http_status(:ok)
+        expect(json_body['jsonapi-serializer']['bookings'].count).to eq(3)
+      end
+    end
+
+    context 'when using jsonapi-serializer without root' do
+      it 'successfully returns a list of bookings' do
+        get '/api/bookings',
+            headers: { HTTP_X_API_SERIALIZER: 'jsonapi-serializer',
+                       HTTP_X_API_SERIALIZER_ROOT: '0' }
+        expect(response).to have_http_status(:ok)
+        expect(json_body['jsonapi-serializer'].count).to eq(3)
+      end
     end
   end
 
   describe 'GET /bookings/:id' do
-    it 'returns a single booking' do
-      get "/api/bookings/#{bookings.first.id}"
+    context 'when using blueprinter' do
+      it 'returns a single booking' do
+        get "/api/bookings/#{bookings.first.id}"
 
-      expect(response).to have_http_status(:ok)
-      expect(json_body).to include('booking' => { 'id' => anything,
-                                                  'flight_id' => anything,
-                                                  'no_of_seats' => anything,
-                                                  'seat_price' => anything,
-                                                  'user_id' => anything })
+        expect(response).to have_http_status(:ok)
+        expect(json_body).to include('booking' => { 'id' => anything,
+                                                    'flight_id' => anything,
+                                                    'no_of_seats' => anything,
+                                                    'seat_price' => anything,
+                                                    'user_id' => anything })
+      end
+    end
+
+    context 'when using jsonapi-serializer' do
+      it 'successfully returns a list of bookings' do
+        get "/api/bookings/#{bookings.first.id}",
+            headers: { HTTP_X_API_SERIALIZER: 'jsonapi-serializer' }
+        expect(response).to have_http_status(:ok)
+        expect(json_body).to include('jsonapi-serializer' => { 'booking' => anything })
+      end
     end
   end
 

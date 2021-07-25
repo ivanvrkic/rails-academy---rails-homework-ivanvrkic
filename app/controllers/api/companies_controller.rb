@@ -1,12 +1,18 @@
 module Api
   class CompaniesController < ApplicationController
     def index
-      render json: CompanySerializer.render(Company.all, root: :companies)
+      render json: jsonapi_serializer? ? jsonapi_all_companies : blueprinter_all_companies
     end
 
     def show
       company = Company.find(params[:id])
-      render json: CompanySerializer.render(company, root: :company)
+      render json: if jsonapi_serializer?
+                     jsonapi_company(company)
+                   else
+                     CompanySerializer.render(
+                       company, root: :company
+                     )
+                   end
     end
 
     def create
@@ -40,6 +46,23 @@ module Api
 
     def company_params
       params.require(:company).permit(:id, :name)
+    end
+
+    def jsonapi_all_companies
+      JsonapiSerializer::CompanySerializer.new(Company.all).public_send(json_root_method)
+    end
+
+    def jsonapi_company(company)
+      JsonapiSerializer::CompanySerializer.new(company).json_with_root
+    end
+
+    def blueprinter_all_companies
+      if root?
+        CompanySerializer.render(Company.all,
+                                 root: :companies)
+      else
+        CompanySerializer.render(Company.all)
+      end
     end
   end
 end
