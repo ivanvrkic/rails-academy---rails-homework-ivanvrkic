@@ -51,10 +51,12 @@ RSpec.describe 'Bookings API', type: :request do
 
         expect(response).to have_http_status(:ok)
         expect(json_body).to include('booking' => { 'id' => anything,
-                                                    'flight_id' => anything,
+                                                    'flight' => anything,
                                                     'no_of_seats' => anything,
                                                     'seat_price' => anything,
-                                                    'user_id' => anything })
+                                                    'user' => anything,
+                                                    'created_at' => anything,
+                                                    'updated_at' => anything })
       end
     end
 
@@ -78,7 +80,7 @@ RSpec.describe 'Bookings API', type: :request do
 
         expect(Booking.count).to eq(count + 1)
         expect(response).to have_http_status(:created)
-        expect(json_body).to include(booking_hash.stringify_keys)
+        expect(json_body['booking']).to include(booking_hash_response.stringify_keys)
       end
     end
 
@@ -107,7 +109,7 @@ RSpec.describe 'Bookings API', type: :request do
         expect(booking.seat_price).to eq(1000)
         expect(booking.no_of_seats).to eq(4)
         expect(response).to have_http_status(:ok)
-        expect(json_body).to include('seat_price' => 1000,
+        expect(json_body['booking']).to include('seat_price' => 1000,
                                      'no_of_seats' => 4, 'id' => bookings.first.id)
       end
     end

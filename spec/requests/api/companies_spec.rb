@@ -50,7 +50,7 @@ RSpec.describe 'Companies API', type: :request do
         get "/api/companies/#{companies.first.id}"
 
         expect(response).to have_http_status(:ok)
-        expect(json_body).to include('company' => { 'name' => anything, 'id' => anything })
+        expect(json_body['company']).to include('name' => companies.first.name, 'id' => companies.first.id)
       end
     end
 
@@ -74,7 +74,7 @@ RSpec.describe 'Companies API', type: :request do
 
         expect(Company.count).to eq(count + 1)
         expect(response).to have_http_status(:created)
-        expect(json_body).to include('name' => 'Croatia Airlines')
+        expect(json_body['company']).to include('name' => 'Croatia Airlines')
       end
     end
 
@@ -99,7 +99,7 @@ RSpec.describe 'Companies API', type: :request do
 
         expect(Company.find(companies.first.id).name).to eq('Croatia Airlines')
         expect(response).to have_http_status(:ok)
-        expect(json_body).to include('name' => 'Croatia Airlines', 'id' => companies.first.id)
+        expect(json_body['company']).to include('name' => 'Croatia Airlines', 'id' => companies.first.id)
       end
     end
 

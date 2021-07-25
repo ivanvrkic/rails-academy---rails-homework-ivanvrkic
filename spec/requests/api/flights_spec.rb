@@ -50,13 +50,13 @@ RSpec.describe 'Flights API', type: :request do
         get "/api/flights/#{flights.first.id}"
 
         expect(response).to have_http_status(:ok)
-        expect(json_body).to include('flight' => { 'id' => anything,
-                                                   'arrives_at' => anything,
-                                                   'base_price' => anything,
-                                                   'company_id' => anything,
-                                                   'departs_at' => anything,
-                                                   'name' => anything,
-                                                   'no_of_seats' => anything })
+        expect(json_body['flight']).to include('id' => anything,
+                                               'arrives_at' => anything,
+                                               'base_price' => anything,
+                                               'company' => anything,
+                                               'departs_at' => anything,
+                                               'name' => anything,
+                                               'no_of_seats' => anything)
       end
     end
 
@@ -80,7 +80,7 @@ RSpec.describe 'Flights API', type: :request do
 
         expect(Flight.count).to eq(count + 1)
         expect(response).to have_http_status(:created)
-        expect(json_body).to include(flight_hash.stringify_keys)
+        expect(json_body['flight']).to include(flight_hash_response.stringify_keys)
       end
     end
 
@@ -110,7 +110,7 @@ RSpec.describe 'Flights API', type: :request do
         expect(flight.base_price).to eq(999)
         expect(flight.no_of_seats).to eq(4)
         expect(response).to have_http_status(:ok)
-        expect(json_body).to include('name' => 'Newflight1', 'base_price' => 999,
+        expect(json_body['flight']).to include('name' => 'Newflight1', 'base_price' => 999,
                                      'no_of_seats' => 4, 'id' => flights.first.id)
       end
     end
