@@ -17,7 +17,7 @@ module Api
     def create
       flight = Flight.new(flight_params)
       if flight.save
-        render json: { flight: flight }, status: :created
+        render json: FlightSerializer.render(flight, root: :flight), status: :created
       else
         render json: { errors: flight.errors }, status: :bad_request
       end
@@ -26,7 +26,7 @@ module Api
     def update
       flight = Flight.find(params[:id])
       if flight&.update(flight_params)
-        render json: { flight: flight }, status: :ok
+        render json: FlightSerializer.render(flight, root: :flight), status: :ok
       else
         render json: { errors: flight.errors }, status: :bad_request
       end

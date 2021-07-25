@@ -18,7 +18,7 @@ module Api
     def create
       company = Company.new(company_params)
       if company.save
-        render json: { company: company }, status: :created
+        render json: CompanySerializer.render(company, root: :company), status: :created
       else
         render json: { errors: company.errors }, status: :bad_request
       end
@@ -27,7 +27,7 @@ module Api
     def update
       company = Company.find(params[:id])
       if company&.update(company_params)
-        render json: { company: company }, status: :ok
+        render json: CompanySerializer.render(company, root: :company), status: :ok
       else
         render json: { errors: company.errors }, status: :bad_request
       end
