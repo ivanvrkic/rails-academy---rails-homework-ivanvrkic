@@ -3,7 +3,7 @@
 # Table name: companies
 #
 #  id         :bigint           not null, primary key
-#  name       :citext           not null
+#  name       :string           not null
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
 #

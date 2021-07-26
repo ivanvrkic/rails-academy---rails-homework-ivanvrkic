@@ -27,7 +27,7 @@ gem 'jbuilder', '~> 2.7'
 
 gem 'faraday', '~> 1.5', '>= 1.5.1'
 gem 'pg'
-
+gem 'bcrypt', '~> 3.1.7'
 group :development, :test do
   gem 'pry-rails'
   # Configure the code analyser
