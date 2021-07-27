@@ -58,7 +58,11 @@ module Api
     end
 
     def blueprinter_all_users
-      root? ? UserSerializer.render(User.all, root: :users) : UserSerializer.render(User.all)
+      if root?
+        UserSerializer.render(User.all, root: :users, view: :normal)
+      else
+        UserSerializer.render(User.all, view: :normal)
+      end
     end
   end
 end

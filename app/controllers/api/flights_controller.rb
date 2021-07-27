@@ -62,9 +62,9 @@ module Api
 
     def blueprinter_all_flights
       if root?
-        FlightSerializer.render(Flight.all, root: :flights)
+        FlightSerializer.render(Flight.all, root: :flights, view: :normal)
       else
-        FlightSerializer.render(Flight.all)
+        FlightSerializer.render(Flight.all, view: :normal)
       end
     end
   end

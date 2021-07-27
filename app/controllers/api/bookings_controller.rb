@@ -60,9 +60,9 @@ module Api
 
     def blueprinter_all_bookings
       if root?
-        BookingSerializer.render(Booking.all, root: :bookings)
+        BookingSerializer.render(Booking.all, root: :bookings, view: :normal)
       else
-        BookingSerializer.render(Booking.all)
+        BookingSerializer.render(Booking.all, view: :normal)
       end
     end
   end
