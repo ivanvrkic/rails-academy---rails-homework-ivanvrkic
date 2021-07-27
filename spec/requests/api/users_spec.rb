@@ -1,10 +1,6 @@
 RSpec.describe 'Users API', type: :request do
   include TestHelpers::JsonResponse
 
-  let(:invalid_params) do
-    { first_name: '', email: '' }
-  end
-
   describe 'GET /users' do
     context 'when users exist in db' do
       let!(:users) { create_list(:user, 3) }
@@ -117,6 +113,10 @@ RSpec.describe 'Users API', type: :request do
     end
 
     context 'when params are invalid' do
+      let(:invalid_params) do
+        { first_name: '', email: '' }
+      end
+
       it 'returns 400 Bad Request' do
         post '/api/users',
              params: { user: invalid_params }.to_json,
@@ -164,6 +164,10 @@ RSpec.describe 'Users API', type: :request do
     end
 
     context 'when params are invalid' do
+      let(:invalid_params) do
+        { first_name: '', email: '' }
+      end
+
       it 'returns 400 Bad Request' do
         put "/api/users/#{user.id}",
             params: { user: invalid_params }.to_json,

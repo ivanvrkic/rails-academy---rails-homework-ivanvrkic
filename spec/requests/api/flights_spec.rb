@@ -2,9 +2,6 @@ RSpec.describe 'Flights API', type: :request do
   include TestHelpers::JsonResponse
   let(:arriving_date) { 12.hours.from_now }
   let(:departing_date) { 6.hours.from_now }
-  let(:invalid_params) do
-    { name: '', company: '' }
-  end
 
   describe 'GET /flights' do
     context 'when flights exist in db' do
@@ -118,6 +115,10 @@ RSpec.describe 'Flights API', type: :request do
     end
 
     context 'when params are invalid' do
+      let(:invalid_params) do
+        { name: '', company: '' }
+      end
+
       it 'returns 400 Bad Request' do
         post '/api/flights',
              params: { flight: invalid_params }.to_json,
@@ -176,6 +177,10 @@ RSpec.describe 'Flights API', type: :request do
     end
 
     context 'when params are invalid' do
+      let(:invalid_params) do
+        { name: '', company: '' }
+      end
+
       it 'returns 400 Bad Request' do
         put "/api/flights/#{flight.id}",
             params: { flight: { name: '', arrives_at: '',

@@ -56,9 +56,9 @@ module Api
 
     def blueprinter_all_companies
       if root?
-        CompanySerializer.render(Company.all, root: :companies)
+        CompanySerializer.render(Company.all, root: :companies, view: :normal)
       else
-        CompanySerializer.render(Company.all)
+        CompanySerializer.render(Company.all, view: :normal)
       end
     end
   end

@@ -1,10 +1,6 @@
 RSpec.describe 'Companies API', type: :request do
   include TestHelpers::JsonResponse
 
-  let(:invalid_params) do
-    { name: '' }
-  end
-
   describe 'GET /companies' do
     context 'when companies exist in db' do
       let!(:companies) { create_list(:company, 3) }
@@ -105,6 +101,10 @@ RSpec.describe 'Companies API', type: :request do
     end
 
     context 'when params are invalid' do
+      let(:invalid_params) do
+        { name: '' }
+      end
+
       it 'returns 400 Bad Request' do
         post '/api/companies',
              params: { company: invalid_params }.to_json,
@@ -151,6 +151,10 @@ RSpec.describe 'Companies API', type: :request do
     end
 
     context 'when params are invalid' do
+      let(:invalid_params) do
+        { name: '' }
+      end
+
       it 'returns 400 Bad Request' do
         put "/api/companies/#{company.id}",
             params: { company: invalid_params }.to_json,

@@ -1,10 +1,6 @@
 RSpec.describe 'Bookings API', type: :request do
   include TestHelpers::JsonResponse
 
-  let(:invalid_params) do
-    { flight_id: '', no_of_seats: '', seat_price: '', user_id: '' }
-  end
-
   describe 'GET /bookings' do
     context 'when bookings exist in db' do
       let!(:bookings) { create_list(:booking, 3) }
@@ -116,6 +112,10 @@ RSpec.describe 'Bookings API', type: :request do
     end
 
     context 'when params are invalid' do
+      let(:invalid_params) do
+        { flight_id: '', no_of_seats: '', seat_price: '', user_id: '' }
+      end
+
       it 'returns 400 Bad Request' do
         post '/api/bookings',
              params: { booking: invalid_params }.to_json,
@@ -163,6 +163,10 @@ RSpec.describe 'Bookings API', type: :request do
     end
 
     context 'when params are invalid' do
+      let(:invalid_params) do
+        { flight_id: '', no_of_seats: '', seat_price: '', user_id: '' }
+      end
+
       it 'returns 400 Bad Request' do
         put "/api/bookings/#{booking.id}",
             params: { booking: invalid_params }.to_json,
