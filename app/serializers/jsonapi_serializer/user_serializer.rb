@@ -9,5 +9,7 @@ module JsonapiSerializer
     attribute :email
     attribute :created_at
     attribute :updated_at
+
+    has_many :bookings
   end
 end

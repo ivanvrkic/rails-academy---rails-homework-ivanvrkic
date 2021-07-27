@@ -3,7 +3,7 @@ module Api
     before_action :auth
 
     def index
-      render json: jsonapi_serializer? ? jsonapi_all_bookings : blueprinter_all_bookings
+      render json: jsonapi_serializer? ? jsonapi_booking(Booking.where(user: @user)) : blueprinter_all_bookings
     end
 
     def show
@@ -11,9 +11,7 @@ module Api
       render json: if jsonapi_serializer?
                      jsonapi_booking(booking)
                    else
-                     BookingSerializer.render(
-                       booking, root: :booking
-                     )
+                     default_json_booking(booking)
                    end
     end
 
@@ -21,7 +19,7 @@ module Api
       binding.pry
       booking = Booking.new({'user_id' => @user.id}.merge(booking_params))
       if booking.save
-        render json: BookingSerializer.render(booking, root: :booking), status: :created
+        render json: default_json_booking(booking), status: :created
       else
         render json: { errors: booking.errors }, status: :bad_request
       end
@@ -29,8 +27,8 @@ module Api
 
     def update
       booking = Booking.where(user: @user, id: params[:id])
-      if booking&.update(booking_params)
-        render json: BookingSerializer.render(booking, root: :booking), status: :ok
+      if booking.update(booking_params)
+        render json: default_json_booking(booking), status: :ok
       else
         render json: { errors: booking.errors }, status: :bad_request
       end
@@ -38,7 +36,7 @@ module Api
 
     def destroy
       booking = Booking.where(user: @user, id: params[:id])
-      if booking&.destroy
+      if booking.destroy
         render json: booking, status: :no_content
       else
         render json: { errors: booking.errors }, status: :bad_request
@@ -53,20 +51,19 @@ module Api
                                       :seat_price).to_h.to_hash
     end
 
-    def jsonapi_all_bookings
-      JsonapiSerializer::BookingSerializer.new(Booking.where(user: @user)).public_send(json_root_method)
+    def default_json_booking(booking)
+      BookingSerializer.render(booking, root: :booking, view: :normal)
     end
 
     def jsonapi_booking(booking)
-      JsonapiSerializer::BookingSerializer.new(booking).json_with_root
+      JsonapiSerializer::BookingSerializer.new(booking).public_send(json_root_method)
     end
 
     def blueprinter_all_bookings
       if root?
-        BookingSerializer.render(Booking.where(user: @user),
-                                 root: :bookings)
+        BookingSerializer.render(Booking.where(user: @user).all, root: :bookings, view: :normal)
       else
-        BookingSerializer.render(Booking.where(user: @user))
+        BookingSerializer.render(Booking.where(user: @user).all, view: :normal)
       end
     end
 
