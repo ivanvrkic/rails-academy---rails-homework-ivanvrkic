@@ -1,7 +1,7 @@
 module Api
   class UsersController < ApplicationController
     def index
-      render json: jsonapi_serializer? ? jsonapi_all_users : blueprinter_all_users
+      render json: jsonapi_serializer? ? jsonapi_user(User.all) : blueprinter_all_users
     end
 
     def show
@@ -9,15 +9,14 @@ module Api
       render json: if jsonapi_serializer?
                      jsonapi_user(user)
                    else
-                     UserSerializer.render(user,
-                                           root: :user)
+                     default_json_user(user)
                    end
     end
 
     def create
       user = User.new(user_params)
       if user.save
-        render json: UserSerializer.render(user, root: :user), status: :created
+        render json: default_json_user(user), status: :created
       else
         render json: { errors: user.errors }, status: :bad_request
       end
@@ -25,8 +24,8 @@ module Api
 
     def update
       user = User.find(params[:id])
-      if user&.update(user_params)
-        render json: UserSerializer.render(user, root: :user), status: :ok
+      if user.update(user_params)
+        render json: default_json_user(user), status: :ok
       else
         render json: { errors: user.errors }, status: :bad_request
       end
@@ -34,7 +33,7 @@ module Api
 
     def destroy
       user = User.find(params[:id])
-      if user&.destroy
+      if user.destroy
         render json: user, status: :no_content
       else
         render json: { errors: user.errors }, status: :bad_request
@@ -50,12 +49,12 @@ module Api
                                    :last_name)
     end
 
-    def jsonapi_all_users
-      JsonapiSerializer::UserSerializer.new(User.all).public_send(json_root_method)
+    def default_json_user(user)
+      UserSerializer.render(user, root: :user, view: :normal)
     end
 
     def jsonapi_user(user)
-      JsonapiSerializer::UserSerializer.new(user).json_with_root
+      JsonapiSerializer::UserSerializer.new(user).public_send(json_root_method)
     end
 
     def blueprinter_all_users

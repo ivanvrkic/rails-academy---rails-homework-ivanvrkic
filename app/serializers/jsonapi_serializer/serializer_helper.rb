@@ -2,12 +2,12 @@ module JsonapiSerializer
   module SerializerHelper
     def json_with_root
       data = serializable_hash[:data]
-      { 'jsonapi-serializer' => { data_type(data) => data_attributes(data) } }.to_json
+      { data_type(data) => data_attributes(data) }.to_json
     end
 
     def json_without_root
       data = serializable_hash[:data]
-      { 'jsonapi-serializer' => data_attributes(data) }.to_json
+      data_attributes(data).to_json
     end
 
     private

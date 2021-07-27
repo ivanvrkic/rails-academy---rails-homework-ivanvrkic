@@ -1,7 +1,7 @@
 module Api
   class FlightsController < ApplicationController
     def index
-      render json: jsonapi_serializer? ? jsonapi_all_flights : blueprinter_all_flights
+      render json: jsonapi_serializer? ? jsonapi_flight(Flight.all) : blueprinter_all_flights
     end
 
     def show
@@ -9,15 +9,14 @@ module Api
       render json: if jsonapi_serializer?
                      jsonapi_flight(flight)
                    else
-                     FlightSerializer.render(flight,
-                                             root: :flight)
+                     default_json_flight(flight)
                    end
     end
 
     def create
       flight = Flight.new(flight_params)
       if flight.save
-        render json: FlightSerializer.render(flight, root: :flight), status: :created
+        render json: default_json_flight(flight), status: :created
       else
         render json: { errors: flight.errors }, status: :bad_request
       end
@@ -25,8 +24,8 @@ module Api
 
     def update
       flight = Flight.find(params[:id])
-      if flight&.update(flight_params)
-        render json: FlightSerializer.render(flight, root: :flight), status: :ok
+      if flight.update(flight_params)
+        render json: default_json_flight(flight), status: :ok
       else
         render json: { errors: flight.errors }, status: :bad_request
       end
@@ -34,7 +33,7 @@ module Api
 
     def destroy
       flight = Flight.find(params[:id])
-      if flight&.destroy
+      if flight.destroy
         render json: flight, status: :no_content
       else
         render json: { errors: flight.errors }, status: :bad_request
@@ -53,18 +52,17 @@ module Api
                                      :no_of_seats)
     end
 
-    def jsonapi_all_flights
-      JsonapiSerializer::FlightSerializer.new(Flight.all).public_send(json_root_method)
+    def default_json_flight(flight)
+      FlightSerializer.render(flight, root: :flight, view: :normal)
     end
 
     def jsonapi_flight(flight)
-      JsonapiSerializer::FlightSerializer.new(flight).json_with_root
+      JsonapiSerializer::FlightSerializer.new(flight).public_send(json_root_method)
     end
 
     def blueprinter_all_flights
       if root?
-        FlightSerializer.render(Flight.all,
-                                root: :flights)
+        FlightSerializer.render(Flight.all, root: :flights)
       else
         FlightSerializer.render(Flight.all)
       end

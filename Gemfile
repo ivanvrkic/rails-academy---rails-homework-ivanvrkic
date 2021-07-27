@@ -29,20 +29,16 @@ gem 'faraday', '~> 1.5', '>= 1.5.1'
 gem 'pg'
 
 group :development, :test do
+  gem 'blueprinter'
+  gem 'factory_bot_rails'
+  gem 'jsonapi-serializer'
+  gem 'overcommit', require: false
   gem 'pry-rails'
-  # Configure the code analyser
+  gem 'rspec-rails'
   gem 'rubocop', require: false
   gem 'rubocop-rails', require: false
   gem 'rubocop-rspec', require: false
-  # Integrate overcommit hooks
-  gem 'overcommit', require: false
-  # Configure the test suite
-  gem 'blueprinter'
-  gem 'factory_bot_rails'
-  gem 'rspec-rails'
   gem 'shoulda-matchers'
-
-  gem 'jsonapi-serializer'
 end
 
 group :development do

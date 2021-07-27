@@ -1,7 +1,7 @@
 module Api
   class CompaniesController < ApplicationController
     def index
-      render json: jsonapi_serializer? ? jsonapi_all_companies : blueprinter_all_companies
+      render json: jsonapi_serializer? ? jsonapi_company(Company.all) : blueprinter_all_companies
     end
 
     def show
@@ -9,16 +9,14 @@ module Api
       render json: if jsonapi_serializer?
                      jsonapi_company(company)
                    else
-                     CompanySerializer.render(
-                       company, root: :company
-                     )
+                     default_json_company(company)
                    end
     end
 
     def create
       company = Company.new(company_params)
       if company.save
-        render json: CompanySerializer.render(company, root: :company), status: :created
+        render json: default_json_company(company), status: :created
       else
         render json: { errors: company.errors }, status: :bad_request
       end
@@ -26,8 +24,8 @@ module Api
 
     def update
       company = Company.find(params[:id])
-      if company&.update(company_params)
-        render json: CompanySerializer.render(company, root: :company), status: :ok
+      if company.update(company_params)
+        render json: default_json_company(company), status: :ok
       else
         render json: { errors: company.errors }, status: :bad_request
       end
@@ -35,7 +33,7 @@ module Api
 
     def destroy
       company = Company.find(params[:id])
-      if company&.destroy
+      if company.destroy
         render json: company, status: :no_content
       else
         render json: { errors: company.errors }, status: :bad_request
@@ -48,18 +46,17 @@ module Api
       params.require(:company).permit(:id, :name)
     end
 
-    def jsonapi_all_companies
-      JsonapiSerializer::CompanySerializer.new(Company.all).public_send(json_root_method)
+    def default_json_company(company)
+      CompanySerializer.render(company, root: :company, view: :normal)
     end
 
     def jsonapi_company(company)
-      JsonapiSerializer::CompanySerializer.new(company).json_with_root
+      JsonapiSerializer::CompanySerializer.new(company).public_send(json_root_method)
     end
 
     def blueprinter_all_companies
       if root?
-        CompanySerializer.render(Company.all,
-                                 root: :companies)
+        CompanySerializer.render(Company.all, root: :companies)
       else
         CompanySerializer.render(Company.all)
       end
