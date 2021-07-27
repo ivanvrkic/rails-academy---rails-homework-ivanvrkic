@@ -7,42 +7,45 @@ RSpec.describe 'Flights API', type: :request do
   end
 
   describe 'GET /flights' do
-    let!(:flights) { create_list(:flight, 3) }
+    context 'when flights exist in db' do
+      let!(:flights) { create_list(:flight, 3) }
 
-    context 'when using blueprinter with root' do
-      it 'successfully returns a list of flights' do
+      it 'successfully returns a list of flights when using blueprinter with root' do
         get '/api/flights'
 
         expect(response).to have_http_status(:ok)
         expect(json_body['flights'].count).to eq(flights.count)
       end
-    end
 
-    context 'when using blueprinter without root' do
-      it 'successfully returns a list of flights' do
+      it 'successfully returns a list of flights when using blueprinter without root' do
         get '/api/flights',
             headers: api_headers(not_root: true)
 
         expect(response).to have_http_status(:ok)
         expect(json_body.count).to eq(flights.count)
       end
-    end
 
-    context 'when using jsonapi-serializer with root' do
-      it 'successfully returns a list of flights' do
+      it 'successfully returns a list of flights when using jsonapi-serializer with root' do
         get '/api/flights',
             headers: api_headers(default_serializer: false)
         expect(response).to have_http_status(:ok)
         expect(json_body['flights'].count).to eq(flights.count)
       end
-    end
 
-    context 'when using jsonapi-serializer without root' do
-      it 'successfully returns a list of flights' do
+      it 'successfully returns a list of flights when using jsonapi-serializer without root' do
         get '/api/flights',
             headers: api_headers(default_serializer: false, not_root: true)
         expect(response).to have_http_status(:ok)
         expect(json_body.count).to eq(flights.count)
+      end
+    end
+
+    context 'when flights do not exist in db' do
+      it 'returns an empty flight list' do
+        get '/api/flights'
+
+        expect(response).to have_http_status(:ok)
+        expect(json_body['flights'].count).to eq(0)
       end
     end
   end
@@ -50,8 +53,8 @@ RSpec.describe 'Flights API', type: :request do
   describe 'GET /flights/:id' do
     let!(:flight) { create(:flight) }
 
-    context 'when using blueprinter' do
-      it 'returns a single flight' do
+    context 'when flight exists' do
+      it 'returns a single flight when using blueprinter' do
         get "/api/flights/#{flight.id}"
 
         expect(response).to have_http_status(:ok)
@@ -63,15 +66,23 @@ RSpec.describe 'Flights API', type: :request do
                                                'name' => anything,
                                                'no_of_seats' => anything)
       end
-    end
 
-    context 'when using jsonapi-serializer' do
-      it 'successfully returns a list of flights' do
+      it 'successfully returns a list of flights when using jsonapi-serializer' do
         get "/api/flights/#{flight.id}",
             headers: api_headers(default_serializer: false)
 
         expect(response).to have_http_status(:ok)
         expect(json_body).to include('flight' => anything)
+      end
+    end
+
+    context 'when flight does not exist' do
+      it 'returns 404 not found' do
+        get '/api/flights/1',
+            headers: api_headers(default_serializer: false)
+
+        expect(response).to have_http_status(:not_found)
+        expect(json_body['errors']).to include('not found')
       end
     end
   end

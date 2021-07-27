@@ -6,39 +6,33 @@ RSpec.describe 'Bookings API', type: :request do
   end
 
   describe 'GET /bookings' do
-    let!(:bookings) { create_list(:booking, 3) }
+    context 'when bookings exist in db' do
+      let!(:bookings) { create_list(:booking, 3) }
 
-    context 'when using blueprinter with root' do
-      it 'successfully returns a list of bookings' do
+      it 'successfully returns a list of bookings when using blueprinter with root' do
         get '/api/bookings'
 
         expect(response).to have_http_status(:ok)
         expect(json_body['bookings'].count).to eq(bookings.count)
       end
-    end
 
-    context 'when using blueprinter without root' do
-      it 'successfully returns a list of bookings' do
+      it 'successfully returns a list of bookings when using blueprinter without root' do
         get '/api/bookings',
             headers: api_headers(not_root: true)
 
         expect(response).to have_http_status(:ok)
         expect(json_body.count).to eq(bookings.count)
       end
-    end
 
-    context 'when using jsonapi-serializer with root' do
-      it 'successfully returns a list of bookings' do
+      it 'successfully returns a list of bookings when using jsonapi-serializer with root' do
         get '/api/bookings',
             headers: api_headers(default_serializer: false)
 
         expect(response).to have_http_status(:ok)
         expect(json_body['bookings'].count).to eq(bookings.count)
       end
-    end
 
-    context 'when using jsonapi-serializer without root' do
-      it 'successfully returns a list of bookings' do
+      it 'successfully returns a list of bookings when using jsonapi-serializer without root' do
         get '/api/bookings',
             headers: api_headers(default_serializer: false, not_root: true)
 
@@ -46,13 +40,22 @@ RSpec.describe 'Bookings API', type: :request do
         expect(json_body.count).to eq(bookings.count)
       end
     end
+
+    context 'when bookings do not exist in db' do
+      it 'returns an empty booking list' do
+        get '/api/bookings'
+
+        expect(response).to have_http_status(:ok)
+        expect(json_body['bookings'].count).to eq(0)
+      end
+    end
   end
 
   describe 'GET /bookings/:id' do
-    let!(:booking) { create(:booking) }
+    context 'when booking exists' do
+      let!(:booking) { create(:booking) }
 
-    context 'when using blueprinter' do
-      it 'returns a single booking' do
+      it 'returns a single booking when using blueprinter' do
         get "/api/bookings/#{booking.id}"
 
         expect(response).to have_http_status(:ok)
@@ -64,15 +67,23 @@ RSpec.describe 'Bookings API', type: :request do
                                                     'created_at' => anything,
                                                     'updated_at' => anything })
       end
-    end
 
-    context 'when using jsonapi-serializer' do
-      it 'successfully returns a list of bookings' do
+      it 'successfully returns a single booking when using jsonapi-serializer' do
         get "/api/bookings/#{booking.id}",
             headers: api_headers(default_serializer: false)
 
         expect(response).to have_http_status(:ok)
         expect(json_body).to include('booking' => anything)
+      end
+    end
+
+    context 'when booking does not exist' do
+      it 'returns 404 not found' do
+        get '/api/bookings/1',
+            headers: api_headers(default_serializer: false)
+
+        expect(response).to have_http_status(:not_found)
+        expect(json_body['errors']).to include('not found')
       end
     end
   end

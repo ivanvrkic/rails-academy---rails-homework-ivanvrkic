@@ -6,39 +6,33 @@ RSpec.describe 'Companies API', type: :request do
   end
 
   describe 'GET /companies' do
-    let!(:companies) { create_list(:company, 3) }
+    context 'when companies exist in db' do
+      let!(:companies) { create_list(:company, 3) }
 
-    context 'when using blueprinter with root' do
-      it 'successfully returns a list of companies' do
+      it 'successfully returns a list of companies when using blueprinter with root' do
         get '/api/companies'
 
         expect(response).to have_http_status(:ok)
         expect(json_body['companies'].count).to eq(companies.count)
       end
-    end
 
-    context 'when using blueprinter without root' do
-      it 'successfully returns a list of companies' do
+      it 'successfully returns a list of companies when using blueprinter without root' do
         get '/api/companies',
             headers: api_headers(not_root: true)
 
         expect(response).to have_http_status(:ok)
         expect(json_body.count).to eq(companies.count)
       end
-    end
 
-    context 'when using jsonapi-serializer with root' do
-      it 'successfully returns a list of companies' do
+      it 'successfully returns a list of companies when using jsonapi-serializer with root' do
         get '/api/companies',
             headers: api_headers(default_serializer: false)
 
         expect(response).to have_http_status(:ok)
         expect(json_body['companies'].count).to eq(companies.count)
       end
-    end
 
-    context 'when using jsonapi-serializer without root' do
-      it 'successfully returns a list of companies' do
+      it 'successfully returns a list of companies when using jsonapi-serializer without root' do
         get '/api/companies',
             headers: api_headers(default_serializer: false, not_root: true)
 
@@ -46,27 +40,44 @@ RSpec.describe 'Companies API', type: :request do
         expect(json_body.count).to eq(companies.count)
       end
     end
+
+    context 'when companies do not exist in db' do
+      it 'returns an empty company list' do
+        get '/api/companies'
+
+        expect(response).to have_http_status(:ok)
+        expect(json_body['companies'].count).to eq(0)
+      end
+    end
   end
 
   describe 'GET /companies/:id' do
-    let!(:company) { create(:company) }
+    context 'when company exists' do
+      let!(:company) { create(:company) }
 
-    context 'when using blueprinter' do
-      it 'returns a single company' do
+      it 'returns a single company when using blueprinter' do
         get "/api/companies/#{company.id}"
 
         expect(response).to have_http_status(:ok)
         expect(json_body['company']).to include('name' => company.name,
                                                 'id' => company.id)
       end
-    end
 
-    context 'when using jsonapi-serializer' do
-      it 'successfully returns a list of companies' do
+      it 'successfully returns a single when using jsonapi-serializer' do
         get "/api/companies/#{company.id}",
             headers: api_headers(default_serializer: false)
         expect(response).to have_http_status(:ok)
         expect(json_body).to include('company' => anything)
+      end
+    end
+
+    context 'when company does not exist' do
+      it 'returns 404 not found' do
+        get '/api/companies/1',
+            headers: api_headers(default_serializer: false)
+
+        expect(response).to have_http_status(:not_found)
+        expect(json_body['errors']).to include('not found')
       end
     end
   end

@@ -6,39 +6,33 @@ RSpec.describe 'Users API', type: :request do
   end
 
   describe 'GET /users' do
-    let!(:users) { create_list(:user, 3) }
+    context 'when users exist in db' do
+      let!(:users) { create_list(:user, 3) }
 
-    context 'when using blueprinter with root' do
-      it 'successfully returns a list of users' do
+      it 'successfully returns a list of users when using blueprinter with root' do
         get '/api/users'
 
         expect(response).to have_http_status(:ok)
         expect(json_body['users'].count).to eq(users.count)
       end
-    end
 
-    context 'when using blueprinter without root' do
-      it 'successfully returns a list of users' do
+      it 'successfully returns a list of users when using blueprinter without root' do
         get '/api/users',
             headers: api_headers(not_root: true)
 
         expect(response).to have_http_status(:ok)
         expect(json_body.count).to eq(users.count)
       end
-    end
 
-    context 'when using jsonapi-serializer with root' do
-      it 'successfully returns a list of users' do
+      it 'successfully returns a list of users when using jsonapi-serializer with root' do
         get '/api/users',
             headers: api_headers(default_serializer: false)
 
         expect(response).to have_http_status(:ok)
         expect(json_body['users'].count).to eq(users.count)
       end
-    end
 
-    context 'when using jsonapi-serializer without root' do
-      it 'successfully returns a list of users' do
+      it 'successfully returns a list of users when using jsonapi-serializer without root' do
         get '/api/users',
             headers: api_headers(default_serializer: false, not_root: true)
 
@@ -46,13 +40,22 @@ RSpec.describe 'Users API', type: :request do
         expect(json_body.count).to eq(users.count)
       end
     end
+
+    context 'when users do not exist in db' do
+      it 'returns an empty user list' do
+        get '/api/users'
+
+        expect(response).to have_http_status(:ok)
+        expect(json_body['users'].count).to eq(0)
+      end
+    end
   end
 
   describe 'GET /users/:id' do
-    let!(:user) { create(:user) }
+    context 'when user exists' do
+      let!(:user) { create(:user) }
 
-    context 'when using blueprinter' do
-      it 'returns a single user' do
+      it 'returns a single user when using blueprinter' do
         get "/api/users/#{user.id}"
 
         expect(response).to have_http_status(:ok)
@@ -63,10 +66,8 @@ RSpec.describe 'Users API', type: :request do
                                              'created_at' => anything,
                                              'updated_at' => anything)
       end
-    end
 
-    context 'when using jsonapi-serializer' do
-      it 'successfully returns a list of users' do
+      it 'successfully returns a list of users when using jsonapi-serializer' do
         get "/api/users/#{user.id}",
             headers: api_headers(default_serializer: false)
 
@@ -77,6 +78,16 @@ RSpec.describe 'Users API', type: :request do
                                                  'last_name' => anything,
                                                  'created_at' => anything,
                                                  'updated_at' => anything })
+      end
+    end
+
+    context 'when user does not exist' do
+      it 'returns 404 not found' do
+        get '/api/users/1',
+            headers: api_headers(default_serializer: false)
+
+        expect(response).to have_http_status(:not_found)
+        expect(json_body['errors']).to include('not found')
       end
     end
   end
