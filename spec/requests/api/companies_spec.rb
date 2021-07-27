@@ -1,7 +1,7 @@
 RSpec.describe 'Companies API', type: :request do
   include TestHelpers::JsonResponse
 
-  describe 'GET /companies' do
+  describe 'GET /api/companies' do
     context 'when companies exist in db' do
       let!(:companies) { create_list(:company, 3) }
 
@@ -47,7 +47,7 @@ RSpec.describe 'Companies API', type: :request do
     end
   end
 
-  describe 'GET /companies/:id' do
+  describe 'GET /api/companies/:id' do
     context 'when company exists' do
       let!(:company) { create(:company) }
 
@@ -78,7 +78,7 @@ RSpec.describe 'Companies API', type: :request do
     end
   end
 
-  describe 'POST /companies' do
+  describe 'POST /api/companies' do
     context 'when params are valid' do
       it 'creates a company' do
         post '/api/companies',
@@ -127,7 +127,7 @@ RSpec.describe 'Companies API', type: :request do
     end
   end
 
-  describe 'PUT /companies/:id' do
+  describe 'PUT /api/companies/:id' do
     let!(:company) { create(:company) }
 
     context 'when params are valid' do
@@ -174,7 +174,7 @@ RSpec.describe 'Companies API', type: :request do
     end
   end
 
-  describe 'DELETE /companies/:id' do
+  describe 'DELETE /api/companies/:id' do
     let!(:company) { create(:company) }
 
     it 'deletes a company in db and returns 204 no content' do

@@ -3,7 +3,7 @@ RSpec.describe 'Flights API', type: :request do
   let(:arriving_date) { 12.hours.from_now }
   let(:departing_date) { 6.hours.from_now }
 
-  describe 'GET /flights' do
+  describe 'GET /api/flights' do
     context 'when flights exist in db' do
       let!(:flights) { create_list(:flight, 3) }
 
@@ -47,7 +47,7 @@ RSpec.describe 'Flights API', type: :request do
     end
   end
 
-  describe 'GET /flights/:id' do
+  describe 'GET /api/flights/:id' do
     let!(:flight) { create(:flight) }
 
     context 'when flight exists' do
@@ -84,7 +84,7 @@ RSpec.describe 'Flights API', type: :request do
     end
   end
 
-  describe 'POST /flights' do
+  describe 'POST /api/flights' do
     let!(:flight) { build(:flight) }
     let(:params) do
       { 'company_id' => nil,
@@ -146,7 +146,7 @@ RSpec.describe 'Flights API', type: :request do
     end
   end
 
-  describe 'PUT /flights/:id' do
+  describe 'PUT /api/flights/:id' do
     let!(:flight) { create(:flight) }
 
     context 'when params are valid' do
@@ -194,7 +194,7 @@ RSpec.describe 'Flights API', type: :request do
     end
   end
 
-  describe 'DELETE /flights/:id' do
+  describe 'DELETE /api/flights/:id' do
     let!(:flight) { create(:flight) }
 
     it 'deletes a flight in db and returns 204 no content' do

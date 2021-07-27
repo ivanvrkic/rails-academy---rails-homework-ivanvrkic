@@ -1,7 +1,7 @@
 RSpec.describe 'Bookings API', type: :request do
   include TestHelpers::JsonResponse
 
-  describe 'GET /bookings' do
+  describe 'GET /api/bookings' do
     context 'when bookings exist in db' do
       let!(:bookings) { create_list(:booking, 3) }
 
@@ -47,7 +47,7 @@ RSpec.describe 'Bookings API', type: :request do
     end
   end
 
-  describe 'GET /bookings/:id' do
+  describe 'GET /api/bookings/:id' do
     context 'when booking exists' do
       let!(:booking) { create(:booking) }
 
@@ -84,7 +84,7 @@ RSpec.describe 'Bookings API', type: :request do
     end
   end
 
-  describe 'POST /bookings' do
+  describe 'POST /api/bookings' do
     let!(:booking) { build(:booking).serializable_hash }
 
     context 'when params are valid' do
@@ -138,7 +138,7 @@ RSpec.describe 'Bookings API', type: :request do
     end
   end
 
-  describe 'PUT /bookings/:id' do
+  describe 'PUT /api/bookings/:id' do
     let!(:booking) { create(:booking) }
 
     context 'when params are valid' do
@@ -186,7 +186,7 @@ RSpec.describe 'Bookings API', type: :request do
     end
   end
 
-  describe 'DELETE /bookings/:id' do
+  describe 'DELETE /api/bookings/:id' do
     let!(:booking) { create(:booking) }
 
     it 'deletes a booking in db and returns 204 no content' do

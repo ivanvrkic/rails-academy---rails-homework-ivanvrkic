@@ -1,7 +1,7 @@
 RSpec.describe 'Users API', type: :request do
   include TestHelpers::JsonResponse
 
-  describe 'GET /users' do
+  describe 'GET /api/users' do
     context 'when users exist in db' do
       let!(:users) { create_list(:user, 3) }
 
@@ -47,7 +47,7 @@ RSpec.describe 'Users API', type: :request do
     end
   end
 
-  describe 'GET /users/:id' do
+  describe 'GET /api/users/:id' do
     context 'when user exists' do
       let!(:user) { create(:user) }
 
@@ -88,7 +88,7 @@ RSpec.describe 'Users API', type: :request do
     end
   end
 
-  describe 'POST /users' do
+  describe 'POST /api/users' do
     let!(:user) { build(:user) }
 
     context 'when params are valid' do
@@ -139,7 +139,7 @@ RSpec.describe 'Users API', type: :request do
     end
   end
 
-  describe 'PUT /users/:id' do
+  describe 'PUT /api/users/:id' do
     let!(:user) { create(:user) }
 
     context 'when params are valid' do
@@ -187,7 +187,7 @@ RSpec.describe 'Users API', type: :request do
     end
   end
 
-  describe 'DELETE /users/:id' do
+  describe 'DELETE /api/users/:id' do
     let!(:user) { create(:user) }
 
     it 'deletes a user in db and returns 204 no content' do
