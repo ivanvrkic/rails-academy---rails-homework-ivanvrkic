@@ -158,7 +158,7 @@ RSpec.describe 'Users API', type: :request do
         expect(json_body['user']).to include('first_name' => 'User', 'email' => 'em@il.com')
       end
 
-      it 'creates a non-admin user' do
+      it 'creates a non-admin user when not admin' do
         post '/api/users',
              params: { user: { first_name: 'User',
                                email: 'em@il.com',

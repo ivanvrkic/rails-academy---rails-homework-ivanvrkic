@@ -19,7 +19,7 @@ module Api
     end
 
     def create
-      user = User.new(user_params.merge(role: nil))
+      user = User.new(@user&.admin? ? user_params : user_params.merge(role: nil))
       if user.save
         render json: default_json_user(user), status: :created
       else
