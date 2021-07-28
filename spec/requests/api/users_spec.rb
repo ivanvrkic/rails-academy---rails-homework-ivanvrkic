@@ -158,7 +158,7 @@ RSpec.describe 'Users API', type: :request do
         expect(json_body['user']).to include('first_name' => 'User', 'email' => 'em@il.com')
       end
 
-      it 'does not create a user with admin role when not admin' do
+      it 'creates a non-admin user' do
         post '/api/users',
              params: { user: { first_name: 'User',
                                email: 'em@il.com',
@@ -167,8 +167,8 @@ RSpec.describe 'Users API', type: :request do
                                role: 'admin' } }.to_json,
              headers: api_headers
 
-        expect(response).to have_http_status(:forbidden)
-        expect(json_body['errors']).to include('resource' => ['is forbidden'])
+        expect(response).to have_http_status(:created)
+        expect(json_body['user']).to include('role' => nil, 'email' => 'em@il.com')
       end
 
       it 'creates a user in db' do
