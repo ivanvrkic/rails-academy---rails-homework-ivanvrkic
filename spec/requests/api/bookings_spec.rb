@@ -105,7 +105,7 @@ RSpec.describe 'Bookings API', type: :request do
             headers: api_headers.merge(auth_header)
 
         expect(response).to have_http_status(:forbidden)
-        expect(json_body['errors']).to include('forbidden' => ['not authorized'])
+        expect(json_body['errors']).to include('resource' => ['is forbidden'])
       end
     end
 
@@ -184,7 +184,7 @@ RSpec.describe 'Bookings API', type: :request do
              headers: api_headers.merge(auth_header)
 
         expect(response).to have_http_status(:forbidden)
-        expect(json_body['errors']).to include('forbidden' => ['not authorized'])
+        expect(json_body['errors']).to include('resource' => ['is forbidden'])
       end
     end
 
@@ -256,7 +256,7 @@ RSpec.describe 'Bookings API', type: :request do
             headers: api_headers.merge(auth_header)
 
         expect(response).to have_http_status(:forbidden)
-        expect(json_body['errors']).to include('forbidden' => ['not authorized'])
+        expect(json_body['errors']).to include('resource' => ['is forbidden'])
       end
     end
 
@@ -293,7 +293,7 @@ RSpec.describe 'Bookings API', type: :request do
                headers: api_headers.merge(auth_header)
 
         expect(response).to have_http_status(:forbidden)
-        expect(json_body['errors']).to include('forbidden' => ['not authorized'])
+        expect(json_body['errors']).to include('resource' => ['is forbidden'])
       end
     end
 

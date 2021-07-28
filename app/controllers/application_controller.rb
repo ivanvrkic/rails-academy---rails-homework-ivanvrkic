@@ -11,7 +11,7 @@ class ApplicationController < ActionController::Base
   end
 
   rescue_from Pundit::NotAuthorizedError do |_exception|
-    render json: { errors: { forbidden: ['not authorized'] } }, status: :forbidden
+    render json: { errors: { resource: ['is forbidden'] } }, status: :forbidden
   end
 
   private

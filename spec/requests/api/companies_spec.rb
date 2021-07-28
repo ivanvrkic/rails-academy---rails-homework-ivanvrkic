@@ -136,7 +136,7 @@ RSpec.describe 'Companies API', type: :request do
              headers: api_headers.merge({ Authorization: user.token })
 
         expect(response).to have_http_status(:forbidden)
-        expect(json_body['errors']).to include('forbidden' => ['not authorized'])
+        expect(json_body['errors']).to include('resource' => ['is forbidden'])
       end
     end
 
@@ -203,7 +203,7 @@ RSpec.describe 'Companies API', type: :request do
             headers: api_headers.merge({ Authorization: user.token })
 
         expect(response).to have_http_status(:forbidden)
-        expect(json_body['errors']).to include('forbidden' => ['not authorized'])
+        expect(json_body['errors']).to include('resource' => ['is forbidden'])
       end
     end
 
@@ -238,7 +238,7 @@ RSpec.describe 'Companies API', type: :request do
                headers: api_headers.merge({ Authorization: user.token })
 
         expect(response).to have_http_status(:forbidden)
-        expect(json_body['errors']).to include('forbidden' => ['not authorized'])
+        expect(json_body['errors']).to include('resource' => ['is forbidden'])
       end
     end
 
