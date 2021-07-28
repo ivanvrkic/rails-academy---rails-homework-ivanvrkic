@@ -27,6 +27,6 @@ class User < ApplicationRecord
                          length: { minimum: 2 }
 
   def admin?
-    self.role=='admin'
+    role == 'admin'
   end
 end

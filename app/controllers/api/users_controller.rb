@@ -20,7 +20,7 @@ module Api
 
     def create
       user = User.new(user_params)
-      authorize user, :update_role? if user_params["role"]
+      authorize user, :update_role? if user_params['role']
       if user.save
         render json: default_json_user(user), status: :created
       else
@@ -31,7 +31,7 @@ module Api
     def update
       user = User.find(params[:id])
       authorize user
-      authorize user, :update_role? if user_params["role"]
+      authorize user, :update_role? if user_params['role']
       if user.update(user_params)
         render json: default_json_user(user), status: :ok
       else

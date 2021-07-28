@@ -40,8 +40,8 @@ module Api
       booking = Booking.find(params[:id])
 
       authorize booking
-      binding.pry
-      authorize booking, :update_user? if booking_params["user_id"]
+
+      authorize booking, :update_user? if booking_params['user_id']
       if booking.update(booking_params)
         render json: default_json_booking(booking), status: :ok
       else
