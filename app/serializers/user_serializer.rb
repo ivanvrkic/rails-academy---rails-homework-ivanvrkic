@@ -8,6 +8,7 @@
 #  email           :string           not null
 #  password_digest :text             not null
 #  token           :text             not null
+#  role            :string
 #  created_at      :datetime         not null
 #  updated_at      :datetime         not null
 #
@@ -19,6 +20,7 @@ class UserSerializer < Blueprinter::Base
   field :email
   field :created_at
   field :updated_at
+  field :role
 
   view :normal do
     association :bookings, blueprint: BookingSerializer

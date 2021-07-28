@@ -1,5 +1,6 @@
 module Api
   class SessionController < ApplicationController
+    skip_before_action :auth
 
     def create
       user = User.find_by(email: session_params[:email])
@@ -7,7 +8,7 @@ module Api
       if session.is_a? User
         render json: json_session(session), status: :created
       else
-        render json: { errors: {credentials: ['are invalid']} }, status: :bad_request
+        render json: { errors: { credentials: ['are invalid'] } }, status: :bad_request
       end
     end
 
@@ -16,7 +17,7 @@ module Api
       if user&.regenerate_token
         render json: { ok: 'logged out' }, status: :no_content
       else
-        render json: { errors: {token: ['is invalid'] } }, status: :bad_request
+        render json: { errors: { token: ['is invalid'] } }, status: :bad_request
       end
     end
 
@@ -28,7 +29,7 @@ module Api
     end
 
     def json_session(session)
-      {session: {token: session.token, user: UserSerializer.render_as_hash(session)}}
+      { session: { token: session.token, user: UserSerializer.render_as_hash(session) } }
     end
   end
 end

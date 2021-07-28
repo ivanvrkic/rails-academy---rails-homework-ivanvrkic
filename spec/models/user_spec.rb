@@ -8,6 +8,7 @@
 #  email           :string           not null
 #  password_digest :text             not null
 #  token           :text             not null
+#  role            :string
 #  created_at      :datetime         not null
 #  updated_at      :datetime         not null
 #
@@ -49,10 +50,10 @@ RSpec.describe User, type: :model do
 
     context 'when blank' do
       it 'does not change' do
-        user.update(password: ' ', password_confirmation: ' ')
+        user.update(password: '', password_confirmation: '')
 
         expect(user.valid?).to be false
-        expect(user.errors[:password]).to include("can't be blank")
+        expect(user.errors[:password_confirmation]).to include("doesn't match Password")
       end
     end
 

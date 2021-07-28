@@ -25,9 +25,11 @@ gem 'jbuilder', '~> 2.7'
 # Use Active Storage variant
 # gem 'image_processing', '~> 1.2'
 
+gem 'bcrypt', '~> 3.1.7'
 gem 'faraday', '~> 1.5', '>= 1.5.1'
 gem 'pg'
-gem 'bcrypt', '~> 3.1.7'
+gem 'pundit'
+
 group :development, :test do
   gem 'blueprinter'
   gem 'factory_bot_rails'

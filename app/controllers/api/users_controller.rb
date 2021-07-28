@@ -1,11 +1,16 @@
 module Api
   class UsersController < ApplicationController
+    skip_before_action :auth, only: [:create]
+
     def index
-      render json: jsonapi_serializer? ? jsonapi_user(User.all) : blueprinter_all_users
+      users = User.all
+      authorize users
+      render json: jsonapi_serializer? ? jsonapi_user(users) : default_json_user(users)
     end
 
     def show
       user = User.find(params[:id])
+      authorize user
       render json: if jsonapi_serializer?
                      jsonapi_user(user)
                    else
@@ -15,6 +20,7 @@ module Api
 
     def create
       user = User.new(user_params)
+      authorize user, :update_role? if user_params[:role]
       if user.save
         render json: default_json_user(user), status: :created
       else
@@ -24,6 +30,8 @@ module Api
 
     def update
       user = User.find(params[:id])
+      authorize user
+      authorize user, :update_role? if user_params[:role]
       if user.update(user_params)
         render json: default_json_user(user), status: :ok
       else
@@ -33,6 +41,7 @@ module Api
 
     def destroy
       user = User.find(params[:id])
+      authorize user
       if user.destroy
         render json: user, status: :no_content
       else
@@ -43,26 +52,27 @@ module Api
     private
 
     def user_params
-      params.require(:user).permit(:id,
-                                   :email,
+      params.require(:user).permit(:email,
                                    :first_name,
-                                   :last_name)
+                                   :last_name,
+                                   :password,
+                                   :password_confirmation,
+                                   :role)
     end
 
     def default_json_user(user)
-      UserSerializer.render(user, root: :user, view: :normal)
+      if root?
+        root_name = user.is_a?(User) ? :user : :users
+        UserSerializer.render(user, root: root_name, view: :normal)
+      else
+        UserSerializer.render(user, view: :normal)
+      end
     end
 
     def jsonapi_user(user)
       JsonapiSerializer::UserSerializer.new(user).public_send(json_root_method)
     end
 
-    def blueprinter_all_users
-      if root?
-        UserSerializer.render(User.all, root: :users, view: :normal)
-      else
-        UserSerializer.render(User.all, view: :normal)
-      end
-    end
+    def blueprinter_all_users; end
   end
 end

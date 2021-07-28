@@ -1,5 +1,7 @@
 module Api
   class CompaniesController < ApplicationController
+    skip_before_action :auth, only: [:index, :show]
+
     def index
       render json: jsonapi_serializer? ? jsonapi_company(Company.all) : blueprinter_all_companies
     end
@@ -15,6 +17,9 @@ module Api
 
     def create
       company = Company.new(company_params)
+
+      authorize company
+
       if company.save
         render json: default_json_company(company), status: :created
       else
@@ -24,6 +29,9 @@ module Api
 
     def update
       company = Company.find(params[:id])
+
+      authorize company
+
       if company.update(company_params)
         render json: default_json_company(company), status: :ok
       else
@@ -33,6 +41,9 @@ module Api
 
     def destroy
       company = Company.find(params[:id])
+
+      authorize company
+
       if company.destroy
         render json: company, status: :no_content
       else

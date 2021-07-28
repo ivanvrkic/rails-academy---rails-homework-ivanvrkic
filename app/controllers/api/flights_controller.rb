@@ -1,5 +1,7 @@
 module Api
   class FlightsController < ApplicationController
+    skip_before_action :auth, only: [:index, :show]
+
     def index
       render json: jsonapi_serializer? ? jsonapi_flight(Flight.all) : blueprinter_all_flights
     end
@@ -15,6 +17,9 @@ module Api
 
     def create
       flight = Flight.new(flight_params)
+
+      authorize flight
+
       if flight.save
         render json: default_json_flight(flight), status: :created
       else
@@ -24,6 +29,9 @@ module Api
 
     def update
       flight = Flight.find(params[:id])
+
+      authorize flight
+
       if flight.update(flight_params)
         render json: default_json_flight(flight), status: :ok
       else
@@ -33,6 +41,9 @@ module Api
 
     def destroy
       flight = Flight.find(params[:id])
+
+      authorize flight
+
       if flight.destroy
         render json: flight, status: :no_content
       else

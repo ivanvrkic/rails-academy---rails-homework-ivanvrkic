@@ -8,6 +8,7 @@
 #  email           :string           not null
 #  password_digest :text             not null
 #  token           :text             not null
+#  role            :string
 #  created_at      :datetime         not null
 #  updated_at      :datetime         not null
 #
