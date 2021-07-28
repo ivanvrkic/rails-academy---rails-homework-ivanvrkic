@@ -20,7 +20,6 @@ module Api
 
     def create
       user = User.new(user_params)
-      authorize user, :update_role? if user_params['role']
       if user.save
         render json: default_json_user(user), status: :created
       else
