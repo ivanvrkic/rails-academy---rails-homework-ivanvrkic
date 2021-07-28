@@ -1,6 +1,7 @@
 module Api
   class UsersController < ApplicationController
     skip_before_action :auth, only: [:create]
+    before_action :set_user_and_token, only: [:create]
 
     def index
       users = User.all

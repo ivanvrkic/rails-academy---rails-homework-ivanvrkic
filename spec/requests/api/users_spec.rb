@@ -155,7 +155,7 @@ RSpec.describe 'Users API', type: :request do
              headers: api_headers.merge({ Authorization: user_admin.token })
 
         expect(response).to have_http_status(:created)
-        expect(json_body['user']).to include('first_name' => 'User', 'email' => 'em@il.com')
+        expect(json_body['user']).to include('email' => 'em@il.com', 'role' => 'admin')
       end
 
       it 'creates a non-admin user when not admin' do
