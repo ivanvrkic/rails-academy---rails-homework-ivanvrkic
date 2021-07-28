@@ -37,7 +37,6 @@ RSpec.describe 'Session API', type: :request do
 
     context 'when user is not authenticated' do
       it 'deletes a session in db and returns 204 no content' do
-
         delete '/api/session/',
                headers: api_headers
 
