@@ -23,14 +23,27 @@ RSpec.describe 'Session API', type: :request do
   end
 
   describe 'DELETE api/session/' do
-    it 'deletes a session in db and returns 204 no content' do
-      user_token = user.token
+    context 'when user is authenticated' do
+      it 'deletes a session in db and returns 204 no content' do
+        user_token = user.token
 
-      delete '/api/session/',
-             headers: api_headers.merge({ 'Authorization' => user_token })
+        delete '/api/session/',
+                headers: api_headers.merge({ 'Authorization' => user_token })
 
-      expect(response).to have_http_status(:no_content)
-      expect(User.where(token: user_token)).not_to exist
+        expect(response).to have_http_status(:no_content)
+        expect(User.where(token: user_token)).not_to exist
+      end
+    end
+    context 'when user is not authenticated' do
+      it 'deletes a session in db and returns 204 no content' do
+        user_token = user.token
+
+        delete '/api/session/',
+                headers: api_headers
+
+                expect(response).to have_http_status(:unauthorized)
+                expect(json_body['errors']).to include('token' => ['is invalid'])
+      end
     end
   end
 end

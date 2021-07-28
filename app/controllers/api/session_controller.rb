@@ -17,7 +17,7 @@ module Api
       if user&.regenerate_token
         render json: { ok: 'logged out' }, status: :no_content
       else
-        render json: { errors: { token: ['is invalid'] } }, status: :bad_request
+        render json: { errors: { token: ['is invalid'] } }, status: :unauthorized
       end
     end
 
