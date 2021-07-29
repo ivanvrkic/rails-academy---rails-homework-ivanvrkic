@@ -11,7 +11,7 @@ module Api
     end
 
     def show
-      booking = Booking.find(params[:id])
+      booking = policy_scope(Booking).find(params[:id])
 
       authorize booking
 
@@ -23,7 +23,7 @@ module Api
     end
 
     def create
-      booking = Booking.new({ 'user_id' => @current_user&.id }.merge(booking_params))
+      booking = Booking.new(merged_booking_params)
 
       authorize booking
 
@@ -36,10 +36,10 @@ module Api
 
     def update
       booking = Booking.find(params[:id])
+      booking.assign_attributes(booking_params)
 
       authorize booking
 
-      authorize booking, :update_user? if booking_params['user_id']
       if booking.update(booking_params)
         render json: default_json_booking(booking), status: :ok
       else
@@ -75,6 +75,10 @@ module Api
       else
         BookingSerializer.render(booking, view: :normal)
       end
+    end
+
+    def merged_booking_params
+      { 'user_id' => @current_user&.id }.merge(booking_params)
     end
 
     def jsonapi_booking(booking)

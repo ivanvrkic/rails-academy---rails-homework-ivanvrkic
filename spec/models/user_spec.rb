@@ -20,7 +20,6 @@ RSpec.describe User, type: :model do
     user_invalid = build(:user, email: 'myemail')
 
     user_invalid.valid?
-    binding
     expect(user_invalid.errors[:email]).to include('is invalid')
   end
 
@@ -41,37 +40,19 @@ RSpec.describe User, type: :model do
   describe 'password' do
     context 'when valid' do
       it 'successfully changes' do
-        user.update(password: 'securepasssword123', password_confirmation: 'securepasssword123')
+        user.update(password: 'securepasssword123')
 
         expect(user.valid?).to be true
         expect(user.authenticate('securepasssword123')).to be_a(described_class)
       end
     end
 
-    context 'when blank' do
-      it 'does not change' do
-        user.update(password: '', password_confirmation: '')
-
-        expect(user.valid?).to be false
-        expect(user.errors[:password_confirmation]).to include("doesn't match Password")
-      end
-    end
-
     context 'when nil' do
       it 'does not change' do
-        user.update(password: nil, password_confirmation: nil)
+        user.update(password: nil)
 
         expect(user.valid?).to be false
         expect(user.errors[:password]).to include("can't be blank")
-      end
-    end
-
-    context 'when confirmation passoword does not match' do
-      it 'does not change' do
-        user.update(password: 'not', password_confirmation: 'matching')
-
-        expect(user.valid?).to be false
-        expect(user.errors[:password_confirmation]).to include("doesn't match Password")
       end
     end
   end

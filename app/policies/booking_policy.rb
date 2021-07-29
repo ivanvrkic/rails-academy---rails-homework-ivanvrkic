@@ -6,10 +6,10 @@ class BookingPolicy < ApplicationPolicy
     end
 
     def resolve
-      if user&.admin?
+      if user.admin?
         scope.all
       else
-        user&.bookings
+        user.bookings
       end
     end
 
@@ -27,14 +27,14 @@ class BookingPolicy < ApplicationPolicy
   end
 
   def update?
-    admin? || record_owner?
+    return true if admin?
+    return true if user == record&.user && record_owner?
+
+    false
   end
 
   def destroy?
     admin? || record_owner?
   end
 
-  def update_user?
-    admin?
-  end
 end

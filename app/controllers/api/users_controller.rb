@@ -30,7 +30,9 @@ module Api
     def update
       user = User.find(params[:id])
       user.assign_attributes(user_params)
+
       authorize user
+
       if user.save
         render json: default_json_user(user), status: :ok
       else

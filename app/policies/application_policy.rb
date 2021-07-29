@@ -50,14 +50,14 @@ class ApplicationPolicy
   private
 
   def admin?
-    user&.role == 'admin'
+    user.role == 'admin'
   end
 
-  def user_owner?
-    user&.id == record&.id if record.is_a?(User)
+  def user_is_owner?
+    user.id == record&.id if record.is_a?(User)
   end
 
   def record_owner?
-    user&.id == record&.user_id if record.respond_to?(:user_id)
+    user.id == record&.user_id if record.respond_to?(:user_id)
   end
 end
