@@ -36,5 +36,4 @@ class BookingPolicy < ApplicationPolicy
   def destroy?
     admin? || record_owner?
   end
-
 end
