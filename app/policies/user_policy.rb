@@ -4,11 +4,11 @@ class UserPolicy < ApplicationPolicy
   end
 
   def show?
-    admin? || record_owner?
+    admin? || user_owner?
   end
 
   def create?
-    admin? || record_owner?
+    admin? || user_owner?
   end
 
   def update?
@@ -19,10 +19,6 @@ class UserPolicy < ApplicationPolicy
   end
 
   def destroy?
-    admin? || record_owner?
-  end
-
-  def update_role?
-    admin?
+    admin? || user_owner?
   end
 end

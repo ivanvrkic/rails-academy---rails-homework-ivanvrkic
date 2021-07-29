@@ -49,10 +49,6 @@ class ApplicationPolicy
 
   private
 
-  def admin_and_own_permission
-    admin? || user_owner? || record_owner? || own_record_list_permission
-  end
-
   def admin?
     user&.role == 'admin'
   end
@@ -63,13 +59,5 @@ class ApplicationPolicy
 
   def record_owner?
     user&.id == record&.user_id if record.respond_to?(:user_id)
-  end
-
-  def own_record_list_permission
-    if record.respond_to?(:take) && record&.take.respond_to?(:user_id)
-      return user&.id == record&.take&.user_id
-    end
-
-    nil
   end
 end

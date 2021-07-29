@@ -75,7 +75,5 @@ module Api
     def jsonapi_user(user)
       JsonapiSerializer::UserSerializer.new(user).public_send(json_root_method)
     end
-
-    def blueprinter_all_users; end
   end
 end
