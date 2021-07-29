@@ -11,7 +11,7 @@ module Api
     end
 
     def show
-      booking = policy_scope(Booking).find(params[:id])
+      booking = Booking.find(params[:id])
 
       authorize booking
 
