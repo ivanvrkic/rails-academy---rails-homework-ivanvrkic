@@ -1,25 +1,27 @@
 class UserPolicy < ApplicationPolicy
   def index?
-    admin_permission
+    admin?
   end
 
   def show?
-    admin_and_own_permission
+    admin? || record_owner?
   end
 
   def create?
-    admin_and_own_permission
+    admin? || record_owner?
   end
 
   def update?
-    admin_and_own_permission
+    return true if admin?
+    return true if user&.role==record&.role && user_owner?
+    false
   end
 
   def destroy?
-    admin_and_own_permission
+    admin? || record_owner?
   end
 
   def update_role?
-    admin_permission
+    admin?
   end
 end

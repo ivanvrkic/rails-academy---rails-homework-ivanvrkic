@@ -1,9 +1,7 @@
 module Api
   class BookingsController < ApplicationController
     def index
-      booking = @user&.role == 'admin' ? Booking.all : Booking.where(user: @user)
-
-      authorize booking
+      booking = policy_scope(Booking)
 
       render json: if jsonapi_serializer?
                      jsonapi_booking(booking)
@@ -25,7 +23,7 @@ module Api
     end
 
     def create
-      booking = Booking.new({ 'user_id' => @user&.id }.merge(booking_params))
+      booking = Booking.new({ 'user_id' => @current_user&.id }.merge(booking_params))
 
       authorize booking
 
@@ -67,7 +65,7 @@ module Api
       params.require(:booking).permit(:flight_id,
                                       :no_of_seats,
                                       :seat_price,
-                                      :user_id).to_h.to_hash
+                                      :user_id)
     end
 
     def default_json_booking(booking)

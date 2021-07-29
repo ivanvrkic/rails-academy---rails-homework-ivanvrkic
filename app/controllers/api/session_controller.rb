@@ -4,9 +4,8 @@ module Api
 
     def create
       user = User.find_by(email: session_params[:email])
-      session = user&.authenticate(session_params[:password])
-      if session.is_a? User
-        render json: json_session(session), status: :created
+      if user&.authenticate(session_params[:password])
+        render json: json_session(user), status: :created
       else
         render json: { errors: { credentials: ['are invalid'] } }, status: :bad_request
       end

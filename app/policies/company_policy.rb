@@ -8,14 +8,14 @@ class CompanyPolicy < ApplicationPolicy
   end
 
   def create?
-    admin_permission
+    admin?
   end
 
   def update?
-    admin_permission
+    admin?
   end
 
   def destroy?
-    admin_permission
+    admin?
   end
 end

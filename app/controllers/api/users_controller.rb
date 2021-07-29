@@ -1,7 +1,6 @@
 module Api
   class UsersController < ApplicationController
     skip_before_action :auth, only: [:create]
-    before_action :set_user_and_token, only: [:create]
 
     def index
       users = User.all
@@ -20,7 +19,7 @@ module Api
     end
 
     def create
-      user = User.new(@user&.admin? ? user_params : user_params.merge(role: nil))
+      user = User.new(merged_user_params)
       if user.save
         render json: default_json_user(user), status: :created
       else
@@ -30,9 +29,9 @@ module Api
 
     def update
       user = User.find(params[:id])
+      user.assign_attributes(user_params)
       authorize user
-      authorize user, :update_role? if user_params['role']
-      if user.update(user_params)
+      if user.save
         render json: default_json_user(user), status: :ok
       else
         render json: { errors: user.errors }, status: :bad_request
@@ -58,6 +57,10 @@ module Api
                                    :password,
                                    :password_confirmation,
                                    :role)
+    end
+
+    def merged_user_params
+      current_user&.admin? ? user_params : user_params.merge(role: nil)
     end
 
     def default_json_user(user)

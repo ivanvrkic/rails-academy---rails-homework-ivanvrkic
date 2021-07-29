@@ -36,19 +36,13 @@ class ApplicationController < ActionController::Base
   end
 
   def auth
-    set_user_and_token
-    return if @token && @user
+    return if current_user && @token
 
     render json: { errors: { token: ['is invalid'] } },
            status: :unauthorized
   end
-
-  def set_user_and_token
-    @token = request.headers['Authorization']
-    @user = User.find_by(token: @token)
-  end
-
   def current_user
+    @token = request.headers['Authorization']
     @current_user ||= User.find_by(token: request.headers['Authorization'])
   end
 end

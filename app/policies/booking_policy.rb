@@ -1,25 +1,40 @@
 class BookingPolicy < ApplicationPolicy
-  def index?
-    admin_and_own_permission || record.count.zero?
+  class Scope
+    def initialize(user, scope)
+      @user  = user
+      @scope = scope
+    end
+
+    def resolve
+      if user&.admin?
+        scope.all
+      else
+        user&.bookings
+      end
+    end
+
+    private
+
+    attr_reader :user, :scope
   end
 
   def show?
-    admin_and_own_permission
+    admin? || record_owner?
   end
 
   def create?
-    admin_and_own_permission
+    admin? || record_owner?
   end
 
   def update?
-    admin_and_own_permission
+    admin? || record_owner?
   end
 
   def destroy?
-    admin_and_own_permission
+    admin? || record_owner?
   end
 
   def update_user?
-    admin_permission
+    admin?
   end
 end
