@@ -13,7 +13,8 @@ class UserPolicy < ApplicationPolicy
 
   def update?
     return true if admin?
-    return true if user&.role==record&.role && user_owner?
+    return true if user&.role == record&.role && user_owner?
+
     false
   end
 

@@ -41,6 +41,7 @@ class ApplicationController < ActionController::Base
     render json: { errors: { token: ['is invalid'] } },
            status: :unauthorized
   end
+
   def current_user
     @token = request.headers['Authorization']
     @current_user ||= User.find_by(token: request.headers['Authorization'])
