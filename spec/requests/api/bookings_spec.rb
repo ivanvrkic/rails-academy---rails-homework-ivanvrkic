@@ -175,19 +175,6 @@ RSpec.describe 'Bookings API', type: :request do
       end
     end
 
-    context 'when user is authenticated and not authorized' do
-      let!(:booking2) { build(:booking).serializable_hash }
-
-      it 'returns 403 Forbidden status' do
-        post '/api/bookings',
-             params: { booking: booking2.compact }.to_json,
-             headers: api_headers.merge(auth_header)
-
-        expect(response).to have_http_status(:forbidden)
-        expect(json_body['errors']).to include('resource' => ['is forbidden'])
-      end
-    end
-
     context 'when user is not authenticated' do
       it 'returns 401 Unauthorized status' do
         post '/api/bookings',
