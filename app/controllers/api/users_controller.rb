@@ -29,11 +29,11 @@ module Api
 
     def update
       user = User.find(params[:id])
-      user.assign_attributes(user_params)
+      # user.assign_attributes(user_params)
 
       authorize user
 
-      if user.save
+      if user.update(user_params)
         render json: default_json_user(user), status: :ok
       else
         render json: { errors: user.errors }, status: :bad_request
@@ -53,12 +53,20 @@ module Api
     private
 
     def user_params
-      params.require(:user).permit(:email,
-                                   :first_name,
-                                   :last_name,
-                                   :password,
-                                   :password_confirmation,
-                                   :role)
+      if current_user.admin?
+        params.require(:user).permit(:email,
+                                     :first_name,
+                                     :last_name,
+                                     :password,
+                                     :password_confirmation,
+                                     :role)
+      else
+        params.require(:user).permit(:email,
+                                     :first_name,
+                                     :last_name,
+                                     :password,
+                                     :password_confirmation)
+      end
     end
 
     def merged_user_params
