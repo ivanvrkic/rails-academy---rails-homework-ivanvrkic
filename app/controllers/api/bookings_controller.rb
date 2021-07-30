@@ -61,6 +61,20 @@ module Api
     private
 
     def booking_params
+      if current_user&.admin?
+        admin_user_params
+      else
+        regular_user_params
+      end
+    end
+
+    def regular_user_params
+      params.require(:booking).permit(:flight_id,
+                                      :no_of_seats,
+                                      :seat_price)
+    end
+
+    def admin_user_params
       params.require(:booking).permit(:flight_id,
                                       :no_of_seats,
                                       :seat_price,
