@@ -27,10 +27,7 @@ class BookingPolicy < ApplicationPolicy
   end
 
   def update?
-    return true if admin?
-    return true if user == record&.user && record_owner?
-
-    false
+    admin? || record_owner?
   end
 
   def destroy?

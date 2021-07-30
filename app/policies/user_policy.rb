@@ -12,13 +12,16 @@ class UserPolicy < ApplicationPolicy
   end
 
   def update?
-    return true if admin?
-    return true if user_is_owner? # user&.role == record&.role &&
-
-    false
+    admin? || user_is_owner?
   end
 
   def destroy?
     admin? || user_is_owner?
+  end
+
+  private
+
+  def user_is_owner?
+    user.id == record&.id
   end
 end

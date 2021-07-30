@@ -19,7 +19,7 @@ module Api
     end
 
     def create
-      user = User.new(merged_user_params)
+      user = User.new(user_params)
       if user.save
         render json: default_json_user(user), status: :created
       else
@@ -29,7 +29,6 @@ module Api
 
     def update
       user = User.find(params[:id])
-      # user.assign_attributes(user_params)
 
       authorize user
 
@@ -52,25 +51,29 @@ module Api
 
     private
 
-    def user_params # rubocop:disable Metrics/MethodLength
+    def user_params
       if current_user&.admin?
-        params.require(:user).permit(:email,
-                                     :first_name,
-                                     :last_name,
-                                     :password,
-                                     :password_confirmation,
-                                     :role)
+        admin_user_params
       else
-        params.require(:user).permit(:email,
-                                     :first_name,
-                                     :last_name,
-                                     :password,
-                                     :password_confirmation)
+        regular_user_params
       end
     end
 
-    def merged_user_params
-      current_user&.admin? ? user_params : user_params.merge(role: nil)
+    def admin_user_params
+      params.require(:user).permit(:email,
+                                   :first_name,
+                                   :last_name,
+                                   :password,
+                                   :password_confirmation,
+                                   :role)
+    end
+
+    def regular_user_params
+      params.require(:user).permit(:email,
+                                   :first_name,
+                                   :last_name,
+                                   :password,
+                                   :password_confirmation)
     end
 
     def default_json_user(user)

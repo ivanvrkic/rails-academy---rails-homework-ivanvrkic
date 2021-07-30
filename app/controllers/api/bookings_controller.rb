@@ -36,7 +36,6 @@ module Api
 
     def update
       booking = Booking.find(params[:id])
-      booking.assign_attributes(booking_params)
 
       authorize booking
 

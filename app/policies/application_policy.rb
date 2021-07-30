@@ -53,10 +53,6 @@ class ApplicationPolicy
     user.role == 'admin'
   end
 
-  def user_is_owner?
-    user.id == record&.id if record.is_a?(User)
-  end
-
   def record_owner?
     user.id == record&.user_id if record.respond_to?(:user_id)
   end
