@@ -5,7 +5,7 @@
 #  id          :bigint           not null, primary key
 #  no_of_seats :integer
 #  seat_price  :integer
-#  booking_id   :bigint
+#  flight_id   :bigint
 #  user_id     :bigint
 #  created_at  :datetime         not null
 #  updated_at  :datetime         not null

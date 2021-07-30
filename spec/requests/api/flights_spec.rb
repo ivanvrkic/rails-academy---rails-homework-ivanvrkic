@@ -1,14 +1,15 @@
 RSpec.describe 'Flights API', type: :request do
   include TestHelpers::JsonResponse
-  let(:arriving_date) { 12.hours.from_now }
-  let(:departing_date) { 6.hours.from_now }
+  let!(:user) { create(:user) }
+  let!(:user_admin) { create(:user, role: 'admin') }
 
-  describe 'GET /flights' do
+  describe 'GET /api/flights' do
     context 'when flights exist in db' do
       let!(:flights) { create_list(:flight, 3) }
 
       it 'successfully returns a list of flights when using blueprinter with root' do
-        get '/api/flights'
+        get '/api/flights',
+            headers: api_headers
 
         expect(response).to have_http_status(:ok)
         expect(json_body['flights'].count).to eq(flights.count)
@@ -39,7 +40,8 @@ RSpec.describe 'Flights API', type: :request do
 
     context 'when flights do not exist in db' do
       it 'returns an empty flight list' do
-        get '/api/flights'
+        get '/api/flights',
+            headers: api_headers
 
         expect(response).to have_http_status(:ok)
         expect(json_body['flights'].count).to eq(0)
@@ -47,12 +49,13 @@ RSpec.describe 'Flights API', type: :request do
     end
   end
 
-  describe 'GET /flights/:id' do
+  describe 'GET /api/flights/:id' do
     let!(:flight) { create(:flight) }
 
     context 'when flight exists' do
       it 'returns a single flight when using blueprinter' do
-        get "/api/flights/#{flight.id}"
+        get "/api/flights/#{flight.id}",
+            headers: api_headers
 
         expect(response).to have_http_status(:ok)
         expect(json_body['flight']).to include('id' => anything,
@@ -84,7 +87,7 @@ RSpec.describe 'Flights API', type: :request do
     end
   end
 
-  describe 'POST /flights' do
+  describe 'POST /api/flights' do
     let!(:flight) { build(:flight) }
     let(:params) do
       { 'company_id' => nil,
@@ -93,11 +96,11 @@ RSpec.describe 'Flights API', type: :request do
         'arrives_at' => flight.arrives_at.to_s }
     end
 
-    context 'when params are valid' do
+    context 'when user is authenticated and authorized (admin) and params are valid' do
       it 'creates a flight' do
         post '/api/flights',
              params: { flight: flight.serializable_hash.compact }.to_json,
-             headers: api_headers
+             headers: api_headers.merge({ Authorization: user_admin.token })
 
         expect(response).to have_http_status(:created)
         expect(json_body['flight']).to include(flight.serializable_hash.merge(params).compact)
@@ -106,7 +109,7 @@ RSpec.describe 'Flights API', type: :request do
       it 'creates a flight in db' do
         post '/api/flights',
              params: { flight: flight.serializable_hash.compact }.to_json,
-             headers: api_headers
+             headers: api_headers.merge({ Authorization: user_admin.token })
 
         id = json_body['flight']['id']
 
@@ -114,7 +117,7 @@ RSpec.describe 'Flights API', type: :request do
       end
     end
 
-    context 'when params are invalid' do
+    context 'when user is authenticated and authorized (admin) and params are invalid' do
       let(:invalid_params) do
         { name: '', company: '' }
       end
@@ -122,7 +125,7 @@ RSpec.describe 'Flights API', type: :request do
       it 'returns 400 Bad Request' do
         post '/api/flights',
              params: { flight: invalid_params }.to_json,
-             headers: api_headers
+             headers: api_headers.merge({ Authorization: user_admin.token })
 
         expect(response).to have_http_status(:bad_request)
         expect(json_body['errors']).to include('arrives_at',
@@ -138,24 +141,46 @@ RSpec.describe 'Flights API', type: :request do
 
         post '/api/flights',
              params: { flight: invalid_params }.to_json,
-             headers: api_headers
+             headers: api_headers.merge({ Authorization: user_admin.token })
 
         expect(Flight.count).to eq(count)
         expect(Flight.where(invalid_params)).not_to exist
       end
     end
+
+    context 'when user is authenticated and not authorized' do
+      it 'returns 403 Forbidden status' do
+        post '/api/flights',
+             params: { flight: flight.serializable_hash.compact }.to_json,
+             headers: api_headers.merge({ Authorization: user.token })
+
+        expect(response).to have_http_status(:forbidden)
+        expect(json_body['errors']).to include('resource' => ['is forbidden'])
+      end
+    end
+
+    context 'when user is not authenticated' do
+      it 'returns 401 Unauthorized status' do
+        post '/api/flights',
+             params: { flight: flight.serializable_hash.compact }.to_json,
+             headers: api_headers
+
+        expect(response).to have_http_status(:unauthorized)
+        expect(json_body['errors']).to include('token' => ['is invalid'])
+      end
+    end
   end
 
-  describe 'PUT /flights/:id' do
+  describe 'PUT /api/flights/:id' do
     let!(:flight) { create(:flight) }
 
-    context 'when params are valid' do
+    context 'when user is authenticated and authorized (admin) and params are valid' do
       it 'updates a flight' do
         put "/api/flights/#{flight.id}",
             params: { flight: { name: 'Newflight1',
                                 base_price: 999,
                                 no_of_seats: 4 } }.to_json,
-            headers: api_headers
+            headers: api_headers.merge({ Authorization: user_admin.token })
 
         expect(response).to have_http_status(:ok)
         expect(json_body['flight']).to include('name' => 'Newflight1',
@@ -169,14 +194,14 @@ RSpec.describe 'Flights API', type: :request do
             params: { flight: { name: 'Newflight1',
                                 base_price: 999,
                                 no_of_seats: 4 } }.to_json,
-            headers: api_headers
+            headers: api_headers.merge({ Authorization: user_admin.token })
 
         expect(Flight.where(id: flight.id, name: 'Newflight1', base_price: 999,
                             no_of_seats: 4)).to exist
       end
     end
 
-    context 'when params are invalid' do
+    context 'when user is authenticated and authorized (admin) and params are invalid' do
       let(:invalid_params) do
         { name: '', company: '' }
       end
@@ -185,23 +210,72 @@ RSpec.describe 'Flights API', type: :request do
         put "/api/flights/#{flight.id}",
             params: { flight: { name: '', arrives_at: '',
                                 base_price: '', company_id: '', no_of_seats: '' } }.to_json,
-            headers: api_headers
+            headers: api_headers.merge({ Authorization: user_admin.token })
 
         expect(response).to have_http_status(:bad_request)
         expect(json_body['errors']).to include('arrives_at', 'base_price', 'company',
                                                'departs_at', 'name', 'no_of_seats')
       end
     end
+
+    context 'when user is authenticated and not authorized' do
+      it 'returns 403 Forbidden status' do
+        put "/api/flights/#{flight.id}",
+            params: { flight: { name: 'Newflight1',
+                                base_price: 999,
+                                no_of_seats: 4 } }.to_json,
+            headers: api_headers.merge({ Authorization: user.token })
+
+        expect(response).to have_http_status(:forbidden)
+        expect(json_body['errors']).to include('resource' => ['is forbidden'])
+      end
+    end
+
+    context 'when user is not authenticated' do
+      it 'returns 401 Unauthorized status' do
+        put "/api/flights/#{flight.id}",
+            params: { flight: { name: 'Newflight1',
+                                base_price: 999,
+                                no_of_seats: 4 } }.to_json,
+            headers: api_headers
+
+        expect(response).to have_http_status(:unauthorized)
+        expect(json_body['errors']).to include('token' => ['is invalid'])
+      end
+    end
   end
 
-  describe 'DELETE /flights/:id' do
+  describe 'DELETE /api/flights/:id' do
     let!(:flight) { create(:flight) }
 
-    it 'deletes a flight in db and returns 204 no content' do
-      delete "/api/flights/#{flight.id}"
+    context 'when user is authenticated and authorized (admin)' do
+      it 'deletes a flight in db and returns 204 no content' do
+        delete "/api/flights/#{flight.id}",
+               headers: api_headers.merge({ Authorization: user_admin.token })
 
-      expect(response).to have_http_status(:no_content)
-      expect(Flight.where(id: flight.id)).not_to exist
+        expect(response).to have_http_status(:no_content)
+        expect(Flight.where(id: flight.id)).not_to exist
+      end
+    end
+
+    context 'when user is authenticated and not authorized' do
+      it 'returns 403 Forbidden status' do
+        delete "/api/flights/#{flight.id}",
+               headers: api_headers.merge({ Authorization: user.token })
+
+        expect(response).to have_http_status(:forbidden)
+        expect(json_body['errors']).to include('resource' => ['is forbidden'])
+      end
+    end
+
+    context 'when user is not authenticated' do
+      it 'returns 401 Unauthorized status' do
+        delete "/api/flights/#{flight.id}",
+               headers: api_headers
+
+        expect(response).to have_http_status(:unauthorized)
+        expect(json_body['errors']).to include('token' => ['is invalid'])
+      end
     end
   end
 end
