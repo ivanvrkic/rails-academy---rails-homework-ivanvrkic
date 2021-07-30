@@ -52,8 +52,8 @@ module Api
 
     private
 
-    def user_params
-      if current_user.admin?
+    def user_params # rubocop:disable Metrics/MethodLength
+      if current_user&.admin?
         params.require(:user).permit(:email,
                                      :first_name,
                                      :last_name,
