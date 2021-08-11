@@ -1,7 +1,7 @@
 module Api
   class BookingsController < ApplicationController
     def index
-      booking = policy_scope(Booking).includes(:flight)
+      booking = policy_scope(Booking).includes(:flight, :user)
                                      .joins(:flight)
                                      .order('departs_at ASC, name ASC')
 

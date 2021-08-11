@@ -56,9 +56,9 @@ class Flight < ApplicationRecord
   def not_overlapping
     is_overlapping = Flight.where('arrives_at >= ? and ? >= departs_at and company_id = ?',
                                   departs_at, arrives_at, company_id).exists?
-
     return unless is_overlapping
 
-    errors.add(:flight, 'must not overlap with existing flights within the same company')
+    errors.add(:departs_at, 'must not overlap with existing flights within the same company')
+    errors.add(:arrives_at, 'must not overlap with existing flights within the same company')
   end
 end
