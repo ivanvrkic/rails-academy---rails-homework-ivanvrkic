@@ -1,6 +1,8 @@
 module Api
   module Statistics
     class CompaniesController < ApplicationController
+      skip_before_action :require_json
+
       def index
         company = CompaniesQuery.new.with_stats
         authorize [:statistics, company]

@@ -1,6 +1,8 @@
 module Api
   module Statistics
     class FlightsController < ApplicationController
+      skip_before_action :require_json
+
       def index
         flight = FlightsQuery.new.with_stats
         authorize [:statistics, flight]
