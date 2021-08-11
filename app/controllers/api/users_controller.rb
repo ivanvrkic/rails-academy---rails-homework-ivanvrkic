@@ -3,7 +3,8 @@ module Api
     skip_before_action :auth, only: [:create]
 
     def index
-      users = User.all.order('email ASC')
+      users = User.includes(:bookings)
+                  .order('email ASC')
                   .where('lower(email) LIKE :query OR
                           lower(first_name) LIKE :query OR
                           lower(last_name) LIKE :query',
