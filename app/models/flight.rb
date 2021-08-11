@@ -45,7 +45,11 @@ class Flight < ApplicationRecord
 
   scope :name_cont, ->(name) { where('lower(name) LIKE ?', "%#{name&.downcase}%") }
 
-  scope :departs_at_eq, ->(departs_at) { where(departs_at: departs_at) }
+  scope :departs_at_eq, lambda { |departs_at|
+                          where("departs_at >= :d::date and
+                                                departs_at < :d::date + interval '1 day'",
+                                d: departs_at)
+                        }
 
   def departs_is_before_arrives
     return if departs_at && arrives_at && departs_at < arrives_at
