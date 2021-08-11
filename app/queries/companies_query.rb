@@ -6,11 +6,12 @@ class CompaniesQuery
   end
 
   def with_stats
-    relation.joins(flights: :bookings)
+    relation.left_outer_joins(flights: :bookings)
             .group('companies.id, flights.company_id')
-            .select('flights.company_id,
-                     AVG(bookings.seat_price)::DOUBLE PRECISION as average_price_of_seats,
-                     SUM(bookings.no_of_seats) as total_no_of_booked_seats,
-                     SUM(bookings.no_of_seats*bookings.seat_price) as total_revenue')
+            .select('companies.id,
+                     COALESCE(AVG(bookings.seat_price),0)::DOUBLE PRECISION
+                     as average_price_of_seats,
+                     COALESCE(SUM(bookings.no_of_seats),0) as total_no_of_booked_seats,
+                     COALESCE(SUM(bookings.no_of_seats*bookings.seat_price),0) as total_revenue')
   end
 end

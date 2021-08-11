@@ -16,9 +16,10 @@ class FlightsQuery
   def with_stats
     relation.joins(:bookings)
             .group('flights.id, bookings.flight_id')
-            .select('bookings.flight_id,
-                     SUM(bookings.no_of_seats)/flights.no_of_seats::DOUBLE PRECISION as occupancy,
-                     SUM(bookings.no_of_seats) as no_of_booked_seats,
-                     SUM(bookings.no_of_seats*seat_price) as revenue')
+            .select('flights.id,
+                    COALESCE(SUM(bookings.no_of_seats)/flights.no_of_seats, 0)::DOUBLE PRECISION
+                    as occupancy,
+                    COALESCE(SUM(bookings.no_of_seats),0) as no_of_booked_seats,
+                    COALESCE(SUM(bookings.no_of_seats*seat_price),0) as revenue')
   end
 end
