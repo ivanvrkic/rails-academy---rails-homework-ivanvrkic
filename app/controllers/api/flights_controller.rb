@@ -4,6 +4,7 @@ module Api
 
     def index
       flight = Flight.includes(:bookings, :company)
+                     .departs_after
                      .order('departs_at ASC, name ASC, created_at ASC')
       render json: response_flight(filter_flights(flight))
     end
