@@ -15,12 +15,12 @@ module Api
     field :created_at
     field :updated_at
 
+    field :no_of_active_flights do |company|
+      company.flights.departs_after.count
+    end
+
     view :normal do
       association :flights, blueprint: FlightSerializer
-
-      field :no_of_active_flights do |company|
-        company.flights.departs_after.count
-      end
     end
   end
 end
