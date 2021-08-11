@@ -14,7 +14,7 @@ class FlightsQuery
   end
 
   def with_stats
-    relation.joins(:bookings)
+    relation.left_outer_joins(:bookings)
             .group('flights.id, bookings.flight_id')
             .select('flights.id,
                     COALESCE(SUM(bookings.no_of_seats)/flights.no_of_seats, 0)::DOUBLE PRECISION

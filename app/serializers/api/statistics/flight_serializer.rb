@@ -1,10 +1,12 @@
 module Api
   module Statistics
     class FlightSerializer < Blueprinter::Base
-      field :flight_id
+      identifier :id, name: :flight_id
       field :revenue
       field :no_of_booked_seats
-      field :occupancy
+      field :occupancy do |flight|
+        "#{flight.occupancy * 100}%"
+      end
     end
   end
 end
