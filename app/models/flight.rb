@@ -31,10 +31,34 @@ class Flight < ApplicationRecord
                           numericality: { greater_than: 0 }
 
   validate :departs_is_before_arrives
+  validate :not_overlapping
+
+  scope :departs_after, -> { where('departs_at > ?', DateTime.now) }
+
+  scope :no_of_available_seats_gteq, lambda { |seats|
+                                       where('? <= flights.no_of_seats - COALESCE((
+                                             SELECT SUM("bookings"."no_of_seats")
+                                             FROM "bookings"
+                                             WHERE "bookings"."flight_id" = "flights"."id"), 0)',
+                                             seats)
+                                     }
+
+  scope :name_cont, ->(name) { where('lower(name) LIKE ?', "%#{name&.downcase}%") }
+
+  scope :departs_at_eq, ->(departs_at) { where(departs_at: departs_at) }
 
   def departs_is_before_arrives
     return if departs_at && arrives_at && departs_at < arrives_at
 
     errors.add(:departs_at, 'must be before arriving date')
+  end
+
+  def not_overlapping
+    is_overlapping = Flight.where('arrives_at >= ? and ? >= departs_at and company_id = ?',
+                                  departs_at, arrives_at, company_id).exists?
+
+    return unless is_overlapping
+
+    errors.add(:flight, 'must not overlap with existing flights within the same company')
   end
 end

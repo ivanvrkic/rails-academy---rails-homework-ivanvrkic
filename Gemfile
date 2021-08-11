@@ -32,6 +32,7 @@ gem 'pundit'
 
 group :development, :test do
   gem 'blueprinter'
+  gem 'bullet'
   gem 'factory_bot_rails'
   gem 'jsonapi-serializer'
   gem 'overcommit', require: false

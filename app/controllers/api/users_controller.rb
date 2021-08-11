@@ -3,7 +3,11 @@ module Api
     skip_before_action :auth, only: [:create]
 
     def index
-      users = User.all
+      users = User.all.order('email ASC')
+                  .where('lower(email) LIKE :query OR
+                          lower(first_name) LIKE :query OR
+                          lower(last_name) LIKE :query',
+                         query: "%#{params[:query]&.downcase}%")
       authorize users
       render json: jsonapi_serializer? ? jsonapi_user(users) : default_json_user(users)
     end
