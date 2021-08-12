@@ -47,7 +47,7 @@ class Flight < ApplicationRecord
 
   scope :departs_at_eq, lambda { |departs_at|
                           where("departs_at >= :d::date and
-                                                departs_at < :d::date + interval '1 day'",
+                                departs_at < :d::date + interval '1 day'",
                                 d: departs_at)
                         }
 
@@ -60,8 +60,9 @@ class Flight < ApplicationRecord
   def not_overlapping
     is_overlapping = Flight.where('arrives_at >= ? and
                                   ? >= departs_at and
-                                  company_id = ? and not id = ?',
-                                  departs_at, arrives_at, company_id, id).exists?
+                                  company_id = ? and
+                                  not lower(name) = ?',
+                                  departs_at, arrives_at, company_id, name&.downcase).exists?
     return unless is_overlapping
 
     errors.add(:departs_at, 'must not overlap with existing flights within the same company')
