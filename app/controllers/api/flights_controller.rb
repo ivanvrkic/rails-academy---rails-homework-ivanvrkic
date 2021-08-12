@@ -5,7 +5,7 @@ module Api
     def index
       flight = Flight.departs_after
                      .order('departs_at ASC, name ASC, created_at ASC')
-      flight = flight.includes(:bookings, :company) if !jsonapi_serializer?
+      flight = flight.includes(:bookings, :company) unless jsonapi_serializer?
       render json: response_flight(filter_flights(flight))
     end
 

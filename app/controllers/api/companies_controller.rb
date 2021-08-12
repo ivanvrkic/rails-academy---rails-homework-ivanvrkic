@@ -11,7 +11,7 @@ module Api
                 else
                   Company.order(name: :asc)
                 end
-      company = company.includes(:flights) if !jsonapi_serializer?
+      company = company.includes(:flights) unless jsonapi_serializer?
       render json: response_company(company)
     end
 
