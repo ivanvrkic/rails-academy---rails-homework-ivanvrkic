@@ -4,15 +4,14 @@ module Api
 
     def index
       company = if params[:filter] == 'active'
-                  Company.includes(:flights)
-                         .joins(:flights)
+                  Company.joins(:flights)
                          .where('flights.departs_at > ?', DateTime.now)
                          .distinct
                          .order(name: :asc)
                 else
-                  Company.includes(:flights).order(name: :asc)
+                  Company.order(name: :asc)
                 end
-
+      company = company.includes(:flights) if !jsonapi_serializer?
       render json: response_company(company)
     end
 

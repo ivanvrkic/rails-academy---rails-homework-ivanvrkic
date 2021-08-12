@@ -3,9 +3,9 @@ module Api
     skip_before_action :auth, only: [:index, :show]
 
     def index
-      flight = Flight.includes(:bookings, :company)
-                     .departs_after
+      flight = Flight.departs_after
                      .order('departs_at ASC, name ASC, created_at ASC')
+      flight = flight.includes(:bookings, :company) if !jsonapi_serializer?
       render json: response_flight(filter_flights(flight))
     end
 
