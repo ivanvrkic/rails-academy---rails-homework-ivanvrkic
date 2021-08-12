@@ -30,10 +30,14 @@ class Booking < ApplicationRecord
   end
 
   def not_overbooked
-    if no_of_seats.to_i + flight&.bookings&.sum(:no_of_seats).to_i <= flight&.no_of_seats.to_i
-      return
-    end
+    booked = no_of_seats.to_i + total_booked_seats
+    booked -= Booking.find(id).no_of_seats if id
+    return if booked <= flight&.no_of_seats.to_i
 
     errors.add(:flight, 'can not be overbooked')
+  end
+
+  def total_booked_seats
+    flight&.bookings&.sum(:no_of_seats).to_i
   end
 end

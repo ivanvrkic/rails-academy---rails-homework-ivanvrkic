@@ -69,13 +69,13 @@ RSpec.describe 'Bookings API', type: :request do
             headers: api_headers.merge(auth_header)
 
         expect(response).to have_http_status(:ok)
-        expect(json_body).to include('booking' => { 'id' => anything,
-                                                    'flight' => anything,
-                                                    'no_of_seats' => anything,
-                                                    'seat_price' => anything,
-                                                    'user' => anything,
-                                                    'created_at' => anything,
-                                                    'updated_at' => anything })
+        expect(json_body['booking']).to include('id' => anything,
+                                                'flight' => anything,
+                                                'no_of_seats' => anything,
+                                                'seat_price' => anything,
+                                                'user' => anything,
+                                                'created_at' => anything,
+                                                'updated_at' => anything)
       end
 
       it 'successfully returns a single booking when using jsonapi-serializer' do

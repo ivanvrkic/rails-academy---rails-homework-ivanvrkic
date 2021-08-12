@@ -177,26 +177,23 @@ RSpec.describe 'Flights API', type: :request do
     context 'when user is authenticated and authorized (admin) and params are valid' do
       it 'updates a flight' do
         put "/api/flights/#{flight.id}",
-            params: { flight: { name: 'Newflight1',
-                                base_price: 999,
+            params: { flight: { base_price: 999,
                                 no_of_seats: 4 } }.to_json,
             headers: api_headers.merge({ Authorization: user_admin.token })
 
         expect(response).to have_http_status(:ok)
-        expect(json_body['flight']).to include('name' => 'Newflight1',
-                                               'base_price' => 999,
+        expect(json_body['flight']).to include('base_price' => 999,
                                                'no_of_seats' => 4,
                                                'id' => flight.id)
       end
 
       it 'updates a flight in db' do
         put "/api/flights/#{flight.id}",
-            params: { flight: { name: 'Newflight1',
-                                base_price: 999,
+            params: { flight: { base_price: 999,
                                 no_of_seats: 4 } }.to_json,
             headers: api_headers.merge({ Authorization: user_admin.token })
 
-        expect(Flight.where(id: flight.id, name: 'Newflight1', base_price: 999,
+        expect(Flight.where(id: flight.id, base_price: 999,
                             no_of_seats: 4)).to exist
       end
     end
