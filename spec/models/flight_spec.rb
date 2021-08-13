@@ -30,6 +30,14 @@ RSpec.describe Flight, type: :model do
     expect(flight_inv.errors[:departs_at]).to include('must be before arriving date')
   end
 
+  it 'is valid when flight is not overlapping with existing flight' do
+    flight.valid?
+
+    overlapped_msg = 'must not overlap with existing flights within the same company'
+    expect(flight.errors[:departs_at]).not_to include(overlapped_msg)
+    expect(flight.errors[:arrives_at]).not_to include(overlapped_msg)
+  end
+
   describe 'associations' do
     it { is_expected.to belong_to(:company).class_name('Company') }
 
