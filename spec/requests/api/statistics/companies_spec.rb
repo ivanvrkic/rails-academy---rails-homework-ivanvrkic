@@ -31,7 +31,7 @@ RSpec.describe 'Statistics/Companies API', type: :request do
             headers: api_headers.merge({ Authorization: user_admin.token })
         binding.pry
         expect(response).to have_http_status(:ok)
-        expect(json_body['companies'][0]['total_revenue']).to eq(total_revenue)
+        expect(json_body['companies']).to eq(total_revenue)
       end
 
       it 'calculates total number of booked seats' do
