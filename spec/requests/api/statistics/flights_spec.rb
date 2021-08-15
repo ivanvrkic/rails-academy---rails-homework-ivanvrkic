@@ -1,6 +1,7 @@
 RSpec.describe 'Statistics/Flights API', type: :request do
   include TestHelpers::JsonResponse
   let!(:user_admin) { create(:user, role: 'admin') }
+  let!(:user) { create(:user) }
 
   describe 'GET /api/statistics/flights' do
     let!(:flight) { create(:flight) }
@@ -60,6 +61,26 @@ RSpec.describe 'Statistics/Flights API', type: :request do
                                                    'no_of_booked_seats' => 0,
                                                    'occupancy' => '0.0%',
                                                    'revenue' => 0)
+      end
+    end
+
+    context 'when user is authenticated and not authorized' do
+      it 'returns 403 Forbidden status' do
+        get '/api/statistics/flights',
+            headers: api_headers.merge({ Authorization: user.token })
+
+        expect(response).to have_http_status(:forbidden)
+        expect(json_body['errors']).to include('resource' => ['is forbidden'])
+      end
+    end
+
+    context 'when user is not authenticated' do
+      it 'returns 401 Unauthorized status' do
+        get '/api/statistics/flights',
+            headers: api_headers
+
+        expect(response).to have_http_status(:unauthorized)
+        expect(json_body['errors']).to include('token' => ['is invalid'])
       end
     end
   end

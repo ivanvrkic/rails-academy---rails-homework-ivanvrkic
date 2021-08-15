@@ -6,6 +6,7 @@ RSpec.describe 'Users API', type: :request do
   describe 'GET /api/users' do
     context 'when user is authenticated and authorized and users exist in db' do
       let!(:users) { create_list(:user, 3) }
+      let!(:all_users) { users + [user_admin] + [user_regular] }
 
       it 'successfully returns a list of users when using blueprinter with root' do
         get '/api/users',
@@ -40,6 +41,33 @@ RSpec.describe 'Users API', type: :request do
 
         expect(response).to have_http_status(:ok)
         expect(json_body.count).to eq(users.count + 2)
+      end
+
+      it 'orders users by email ASC' do
+        get '/api/users',
+            headers: api_headers.merge({ Authorization: user_admin.token })
+
+        sort_ids = all_users.sort_by { |user| [user.email] }
+                            .map { |u| u['id'] }
+
+        expect(response).to have_http_status(:ok)
+        expect(json_body['users'].map { |u| u['id'] }).to eq(sort_ids)
+      end
+
+      it 'filters users by email, first_name or last_name' do
+        query = 'user'
+
+        get '/api/users',
+            params: { query: query },
+            headers: api_headers.merge({ Authorization: user_admin.token })
+
+        name_filter_ids = all_users.sort_by { |user| [user.email] }
+                                   .select do |user|
+          [user.email, user.first_name, user.last_name].join(' ').downcase.include?(query)
+        end
+
+        expect(response).to have_http_status(:ok)
+        expect(json_body['users'].map { |u| u['id'] }).to eq(name_filter_ids.map { |u| u['id'] })
       end
     end
 

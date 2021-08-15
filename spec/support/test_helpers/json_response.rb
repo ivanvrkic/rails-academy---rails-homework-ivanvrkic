@@ -4,6 +4,10 @@ module TestHelpers
       JSON.parse(response.body)
     end
 
+    def by_id
+      proc { |x| x['id'] }
+    end
+
     def api_headers(default_serializer: true, not_root: false)
       headers = { 'Content-Type': 'application/json',
                   'Accept': 'application/json' }
