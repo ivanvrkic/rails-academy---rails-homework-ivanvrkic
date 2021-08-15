@@ -1,14 +1,13 @@
 RSpec.describe 'Statistics/Companies API', type: :request do
   include TestHelpers::JsonResponse
   let!(:user_admin) { create(:user, role: 'admin') }
-  let!(:user) { create(:user) }
 
   describe 'GET /api/statistics/companies' do
     let!(:company) { create(:company) }
 
     context 'when flights have bookings' do
+      let!(:flights) { create_list(:flight, 3, company: company) }
       let!(:total_revenue) do
-        flights = create_list(:flight, 3, company: company)
         create_list(:booking, 3, flight: flights[0])
         create_list(:booking, 3, flight: flights[1])
         company.flights.sum { |f| f.bookings.sum { |b| b.no_of_seats * b.seat_price } }
@@ -71,7 +70,7 @@ RSpec.describe 'Statistics/Companies API', type: :request do
     context 'when user is authenticated and not authorized' do
       it 'returns 403 Forbidden status' do
         get '/api/statistics/companies',
-            headers: api_headers.merge({ Authorization: user.token })
+            headers: api_headers.merge({ Authorization: create(:user).token })
 
         expect(response).to have_http_status(:forbidden)
         expect(json_body['errors']).to include('resource' => ['is forbidden'])
