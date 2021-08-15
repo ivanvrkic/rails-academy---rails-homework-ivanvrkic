@@ -8,8 +8,8 @@ RSpec.describe 'Statistics/Companies API', type: :request do
     context 'when flights have bookings' do
       let!(:flights) { create_list(:flight, 3) do |flight, i|
         flight.company = company
-        flight.departs_at = i.days.from_now
-        flight.arrives_at = i.days.from_now + 1.hour
+        flight.departs_at = i.days.from_now + 1.hour
+        flight.arrives_at = i.days.from_now + 2.hours
       end }
       let!(:total_revenue) do
         binding.pry
