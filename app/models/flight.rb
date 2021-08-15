@@ -62,10 +62,10 @@ class Flight < ApplicationRecord
                                   ? >= departs_at and
                                   company_id = ? and
                                   not lower(name) = ?',
-                                  departs_at, arrives_at, company_id, name&.downcase).exists?
-    return unless is_overlapping
+                                  departs_at, arrives_at, company_id, name&.downcase)
+    return unless is_overlapping.exists?
 
-    errors.add(:departs_at, 'must not overlap with existing flights within the same company')
-    errors.add(:arrives_at, 'must not overlap with existing flights within the same company')
+    errors.add(:departs_at, "from #{self} must not overlap with existing flights #{is_overlapping} within the same company")
+    errors.add(:arrives_at, "from #{self} must not overlap with existing flights #{is_overlapping} within the same company")
   end
 end
