@@ -298,7 +298,7 @@ RSpec.describe 'Flights API', type: :request do
   end
 
   describe 'PUT /api/flights/:id' do
-    let!(:flights) { create_list(:flight, 2, company: create(:company)) }
+    let!(:flights) { create_list(:flight, 2) }
 
     context 'when user is authenticated and authorized (admin) and params are valid' do
       it 'updates a flight' do
@@ -326,7 +326,8 @@ RSpec.describe 'Flights API', type: :request do
       it 'prevents overlapping of flights' do
         put "/api/flights/#{flights[0].id}",
             params: { flight: { departs_at: flights[1].departs_at + 1.hour,
-                                arrives_at: flights[1].arrives_at + 1.hour } }.to_json,
+                                arrives_at: flights[1].arrives_at + 1.hour,
+                                company_id: flights[1].company_id} }.to_json,
             headers: api_headers.merge({ Authorization: user_admin.token })
 
         expect(response).to have_http_status(:bad_request)
