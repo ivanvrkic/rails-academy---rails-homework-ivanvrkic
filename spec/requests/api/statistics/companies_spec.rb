@@ -6,11 +6,11 @@ RSpec.describe 'Statistics/Companies API', type: :request do
     let!(:company) { create(:company) }
 
     context 'when flights have bookings' do
-      let!(:flight) { create(:flight) }
       let!(:total_revenue) do
-        create_list(:booking, 3, flight: flight)
+        create_list(:booking, 3, flight: create(:flight, company: company))
         company.flights.sum { |f| f.bookings.sum { |b| b.no_of_seats * b.seat_price } }
       end
+
       let!(:total_booked_seats) do
         company.flights.sum { |f| f.bookings.sum(:no_of_seats) }
       end
@@ -20,18 +20,18 @@ RSpec.describe 'Statistics/Companies API', type: :request do
             headers: api_headers.merge({ Authorization: user_admin.token })
 
         expect(response).to have_http_status(:ok)
-        expect(json_body['companies'][0]).to include('company_id' => anything,
-                                                     'average_price_of_seats' => anything,
-                                                     'total_no_of_booked_seats' => anything,
-                                                     'total_revenue' => anything)
+        expect(json_body_company).to include('company_id' => anything,
+                                             'average_price_of_seats' => anything,
+                                             'total_no_of_booked_seats' => anything,
+                                             'total_revenue' => anything)
       end
 
       it 'calculates total revenue' do
         get '/api/statistics/companies',
             headers: api_headers.merge({ Authorization: user_admin.token })
-        binding.pry
+
         expect(response).to have_http_status(:ok)
-        expect(json_body['companies']).to eq(total_revenue)
+        expect(json_body_company['total_revenue']).to eq(total_revenue)
       end
 
       it 'calculates total number of booked seats' do
@@ -39,17 +39,17 @@ RSpec.describe 'Statistics/Companies API', type: :request do
             headers: api_headers.merge({ Authorization: user_admin.token })
 
         expect(response).to have_http_status(:ok)
-        expect(json_body['companies'][0]['total_no_of_booked_seats']).to eq(total_booked_seats)
+        expect(json_body_company['total_no_of_booked_seats']).to eq(total_booked_seats)
       end
 
       it 'calculates average price of seats' do
         get '/api/statistics/companies',
             headers: api_headers.merge({ Authorization: user_admin.token })
 
-        avg_price_of_seats = total_booked_seats==0 ? 0 : total_revenue / total_booked_seats.to_f
-        binding.pry
+        avg_price_of_seats = total_booked_seats == 0 ? 0 : total_revenue / total_booked_seats.to_f
+
         expect(response).to have_http_status(:ok)
-        expect(json_body['companies'][0]['average_price_of_seats']).to eq(avg_price_of_seats)
+        expect(json_body_company['average_price_of_seats']).to eq(avg_price_of_seats)
       end
     end
 
@@ -59,10 +59,10 @@ RSpec.describe 'Statistics/Companies API', type: :request do
             headers: api_headers.merge({ Authorization: user_admin.token })
 
         expect(response).to have_http_status(:ok)
-        expect(json_body['companies'][0]).to include('company_id' => company.id,
-                                                     'average_price_of_seats' => 0.0,
-                                                     'total_no_of_booked_seats' => 0,
-                                                     'total_revenue' => 0)
+        expect(json_body_company).to include('company_id' => company.id,
+                                             'average_price_of_seats' => 0.0,
+                                             'total_no_of_booked_seats' => 0,
+                                             'total_revenue' => 0)
       end
     end
 
