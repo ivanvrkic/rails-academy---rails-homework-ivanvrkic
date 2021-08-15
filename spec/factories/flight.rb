@@ -3,7 +3,7 @@ FactoryBot.define do
     company { create(:company) }
     sequence(:name) { |n| "Flight10#{999 - n}" }
     sequence(:departs_at) { |n| ((n*2).days.from_now - 1.hour).to_s }
-    sequence(:arrives_at) { |n| ((n*2).days.from_now - 3.hours).to_s }
+    sequence(:arrives_at) { |n| ((n*2).days.from_now + 1.hour).to_s }
     base_price { 10 }
     no_of_seats { 10 }
   end
