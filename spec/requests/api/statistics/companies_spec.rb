@@ -7,11 +7,12 @@ RSpec.describe 'Statistics/Companies API', type: :request do
 
     context 'when flights have bookings' do
       let!(:flights) do
-        create_list(:flight, 3) do |flight, i|
-          flight.company = company
-          flight.departs_at = i.days.from_now + 1.hour
-          flight.arrives_at = i.days.from_now + 2.hours
-        end
+        create_list(:flight, 3, company: company)
+        # create_list(:flight, 3) do |flight, i|
+        #   flight.company_id = company.id
+        #   flight.departs_at = i.days.from_now + 1.hour
+        #   flight.arrives_at = i.days.from_now + 2.hours
+        # end
       end
       let!(:total_revenue) do
         create_list(:booking, 3, flight: flights[0])
@@ -52,7 +53,7 @@ RSpec.describe 'Statistics/Companies API', type: :request do
       it 'calculates average price of seats' do
         get '/api/statistics/companies',
             headers: api_headers.merge({ Authorization: user_admin.token })
-
+        binding.pry
         average_price_of_seats = total_revenue / total_booked_seats
 
         expect(response).to have_http_status(:ok)
