@@ -46,10 +46,10 @@ RSpec.describe 'Statistics/Companies API', type: :request do
         get '/api/statistics/companies',
             headers: api_headers.merge({ Authorization: user_admin.token })
 
-        average_price_of_seats = total_revenue / total_booked_seats.to_f
+        avg_price_of_seats = total_booked_seats==0 ? 0 : total_revenue / total_booked_seats.to_f
         binding.pry
         expect(response).to have_http_status(:ok)
-        expect(json_body['companies'][0]['average_price_of_seats']).to eq(average_price_of_seats)
+        expect(json_body['companies'][0]['average_price_of_seats']).to eq(avg_price_of_seats)
       end
     end
 
