@@ -65,7 +65,7 @@ class Flight < ApplicationRecord
                                   departs_at, arrives_at, company_id, name&.downcase)
     return unless is_overlapping.exists?
 
-    errors.add(:departs_at, "must not overlap with existing flights #{is_overlapping.take.to_json}within the same company")
+    errors.add(:departs_at, "#{self.to_json} must not overlap with existing flights #{is_overlapping.take.to_json}within the same company")
     errors.add(:arrives_at, "must not overlap with existing flights within the same company")
   end
 end
