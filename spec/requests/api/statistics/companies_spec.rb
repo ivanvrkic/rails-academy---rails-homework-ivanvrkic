@@ -8,6 +8,7 @@ RSpec.describe 'Statistics/Companies API', type: :request do
     context 'when flights have bookings' do
       let!(:flights) { create_list(:flight, 3, company: company) }
       let!(:total_revenue) do
+        binding.pry
         create_list(:booking, 3, flight: flights[0])
         create_list(:booking, 3, flight: flights[1])
         company.flights.sum { |f| f.bookings.sum { |b| b.no_of_seats * b.seat_price } }
