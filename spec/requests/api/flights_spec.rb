@@ -327,7 +327,7 @@ RSpec.describe 'Flights API', type: :request do
         put "/api/flights/#{flights[0].id}",
             params: { flight: { departs_at: flights[1].departs_at + 1.hour,
                                 arrives_at: flights[1].arrives_at + 1.hour,
-                                company_id: flights[1].company_id} }.to_json,
+                                company_id: flights[1].company_id } }.to_json,
             headers: api_headers.merge({ Authorization: user_admin.token })
 
         expect(response).to have_http_status(:bad_request)
