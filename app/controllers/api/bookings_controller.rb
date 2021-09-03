@@ -1,13 +1,13 @@
 module Api
   class BookingsController < ApplicationController
     def index
-      booking = policy_scope(Booking)
+      booking = policy_scope(Booking).includes(:flight, :user)
+                                     .joins(:flight)
+                                     .order('departs_at ASC, name ASC')
 
-      render json: if jsonapi_serializer?
-                     jsonapi_booking(booking)
-                   else
-                     default_json_booking(booking)
-                   end
+      booking = booking.where('flights.departs_at > ?', DateTime.now) if params[:filter] == 'active'
+
+      render json: response_booking(booking)
     end
 
     def show
@@ -15,11 +15,7 @@ module Api
 
       authorize booking
 
-      render json: if jsonapi_serializer?
-                     jsonapi_booking(booking)
-                   else
-                     default_json_booking(booking)
-                   end
+      render json: response_booking(booking)
     end
 
     def create
@@ -59,6 +55,14 @@ module Api
     end
 
     private
+
+    def response_booking(booking)
+      if jsonapi_serializer?
+        jsonapi_booking(booking)
+      else
+        default_json_booking(booking)
+      end
+    end
 
     def booking_params
       if current_user&.admin?

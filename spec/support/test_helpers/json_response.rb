@@ -4,6 +4,14 @@ module TestHelpers
       JSON.parse(response.body)
     end
 
+    def by_id
+      proc { |x| x['id'] }
+    end
+
+    def json_body_company
+      json_body['companies'].select { |c| c['company_id'] == company.id }[0]
+    end
+
     def api_headers(default_serializer: true, not_root: false)
       headers = { 'Content-Type': 'application/json',
                   'Accept': 'application/json' }

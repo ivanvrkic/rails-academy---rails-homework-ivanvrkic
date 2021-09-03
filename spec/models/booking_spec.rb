@@ -20,6 +20,12 @@ RSpec.describe Booking, type: :model do
     expect(booking.errors[:flight]).not_to include('can not be in the past')
   end
 
+  it 'is valid when flight is not overbooked' do
+    booking.valid?
+
+    expect(booking.errors[:flight]).not_to include('can not be overbooked')
+  end
+
   describe 'associations' do
     it { is_expected.to belong_to(:user).class_name('User') }
 

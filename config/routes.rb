@@ -4,8 +4,11 @@ Rails.application.routes.draw do
     resources :bookings, only: [:index, :show, :create, :update, :destroy]
     resources :companies, only: [:index, :show, :create, :update, :destroy]
     resources :flights, only: [:index, :show, :create, :update, :destroy]
+    resource :session, only: [:create, :destroy], controller: :session
 
-    post 'session', to: 'session#create'
-    delete 'session', to: 'session#destroy'
+    namespace :statistics do
+      resources :flights, only: [:index]
+      resources :companies, only: [:index]
+    end
   end
 end

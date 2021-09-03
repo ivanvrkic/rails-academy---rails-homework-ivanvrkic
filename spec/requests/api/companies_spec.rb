@@ -38,6 +38,44 @@ RSpec.describe 'Companies API', type: :request do
         expect(response).to have_http_status(:ok)
         expect(json_body.count).to eq(companies.count)
       end
+
+      it 'order companies by name ASC' do
+        get '/api/companies',
+            headers: api_headers
+
+        sorted_ids = companies.sort_by { |company| [company.name] }
+                              .map(&by_id)
+
+        expect(response).to have_http_status(:ok)
+        expect(json_body['companies'].map(&by_id)).to eq(sorted_ids)
+      end
+
+      it 'filters companies which have only active flights when filter is active' do
+        get '/api/companies',
+            headers: api_headers,
+            params: { filter: 'active' }
+
+        filtered_sorted_ids = companies.select { |company| company.flights.departs_after.count > 0 }
+                                       .sort_by { |company| [company.name] }
+                                       .map(&by_id)
+        expect(response).to have_http_status(:ok)
+        expect(json_body['companies'].map(&by_id)).to eq(filtered_sorted_ids)
+      end
+
+      it 'has number of active flights for each company' do
+        get '/api/companies',
+            headers: api_headers
+
+        company_active_flights_ids = companies.map do |company|
+          { 'id' => company.id, 'no_of_active_flights' => company.flights.departs_after.count }
+        end
+
+        body_company_active_flights_ids = json_body['companies'].map do |company|
+          { 'id' => company['id'], 'no_of_active_flights' => company['no_of_active_flights'] }
+        end
+        expect(response).to have_http_status(:ok)
+        expect(body_company_active_flights_ids).to eq(company_active_flights_ids)
+      end
     end
 
     context 'when companies do not exist in db' do

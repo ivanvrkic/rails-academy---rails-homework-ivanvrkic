@@ -10,6 +10,7 @@ RSpec.describe 'Bookings API', type: :request do
       it 'successfully returns a list of bookings when using blueprinter with root' do
         get '/api/bookings',
             headers: api_headers.merge(auth_header)
+
         expect(response).to have_http_status(:ok)
         expect(json_body['bookings'].count).to eq(bookings.count)
       end
@@ -36,6 +37,50 @@ RSpec.describe 'Bookings API', type: :request do
 
         expect(response).to have_http_status(:ok)
         expect(json_body.count).to eq(bookings.count)
+      end
+
+      it 'orders bookings by departs_at, name ASC from flight and created_at ASC from bookings' do
+        get '/api/bookings',
+            headers: api_headers.merge(auth_header)
+
+        sorted_ids = bookings.sort_by do |booking|
+          [booking.flight.departs_at, booking.flight.name, booking.created_at]
+        end
+                             .map(&by_id)
+
+        expect(response).to have_http_status(:ok)
+        expect(json_body['bookings'].map(&by_id)).to eq(sorted_ids)
+      end
+
+      it 'filters bookings for active flights and orders them when filter is active' do
+        get '/api/bookings',
+            headers: api_headers.merge(auth_header)
+
+        filtered_sorted_ids = bookings.reject { |b| b.flight.departs_at <= DateTime.now }
+                                      .sort_by do |booking|
+          [booking.flight.departs_at,
+           booking.flight.name,
+           booking.created_at]
+        end
+
+        expect(response).to have_http_status(:ok)
+        expect(json_body['bookings'].map(&by_id)).to eq(filtered_sorted_ids.map(&by_id))
+      end
+
+      it 'has total price for each booking' do
+        get '/api/bookings',
+            headers: api_headers.merge(auth_header)
+
+        total_price_ids = bookings.map do |b|
+          { 'id' => b.id, 'total_price' => b.seat_price * b.no_of_seats }
+        end
+
+        body_total_price_ids = json_body['bookings'].map do |b|
+          { 'id' => b['id'], 'total_price' => b['total_price'] }
+        end
+
+        expect(response).to have_http_status(:ok)
+        expect(body_total_price_ids).to eq(total_price_ids)
       end
     end
 
@@ -69,13 +114,13 @@ RSpec.describe 'Bookings API', type: :request do
             headers: api_headers.merge(auth_header)
 
         expect(response).to have_http_status(:ok)
-        expect(json_body).to include('booking' => { 'id' => anything,
-                                                    'flight' => anything,
-                                                    'no_of_seats' => anything,
-                                                    'seat_price' => anything,
-                                                    'user' => anything,
-                                                    'created_at' => anything,
-                                                    'updated_at' => anything })
+        expect(json_body['booking']).to include('id' => anything,
+                                                'flight' => anything,
+                                                'no_of_seats' => anything,
+                                                'seat_price' => anything,
+                                                'user' => anything,
+                                                'created_at' => anything,
+                                                'updated_at' => anything)
       end
 
       it 'successfully returns a single booking when using jsonapi-serializer' do
@@ -147,6 +192,16 @@ RSpec.describe 'Bookings API', type: :request do
 
         expect(Booking.where({ id: id }.merge(booking.compact))).to exist
       end
+
+      it 'prevents overbooking of flights' do
+        overbooked_booking = build(:booking, no_of_seats: 999, user: user).serializable_hash
+        post '/api/bookings',
+             params: { booking: overbooked_booking.compact }.to_json,
+             headers: api_headers.merge(auth_header)
+
+        expect(response).to have_http_status(:bad_request)
+        expect(json_body['errors']).to include('flight')
+      end
     end
 
     context 'when user is authenticated and authorized (admin) and params are invalid' do
@@ -215,6 +270,15 @@ RSpec.describe 'Bookings API', type: :request do
             headers: api_headers.merge(auth_header)
 
         expect(Booking.where(id: booking.id, seat_price: 1000, no_of_seats: 4)).to exist
+      end
+
+      it 'prevents overbooking' do
+        put "/api/bookings/#{booking.id}",
+            params: { booking: { no_of_seats: 999 } }.to_json,
+            headers: api_headers.merge(auth_header)
+
+        expect(response).to have_http_status(:bad_request)
+        expect(json_body['errors']).to include('flight')
       end
 
       it 'returns 400 Bad Request with invalid params' do

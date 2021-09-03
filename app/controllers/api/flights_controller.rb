@@ -3,16 +3,15 @@ module Api
     skip_before_action :auth, only: [:index, :show]
 
     def index
-      render json: jsonapi_serializer? ? jsonapi_flight(Flight.all) : blueprinter_all_flights
+      flight = Flight.departs_after
+                     .order('departs_at ASC, name ASC, created_at ASC')
+      flight = flight.includes(:bookings, :company) unless jsonapi_serializer?
+      render json: response_flight(filter_flights(flight))
     end
 
     def show
       flight = Flight.find(params[:id])
-      render json: if jsonapi_serializer?
-                     jsonapi_flight(flight)
-                   else
-                     default_json_flight(flight)
-                   end
+      render json: response_flight(flight)
     end
 
     def create
@@ -53,6 +52,22 @@ module Api
 
     private
 
+    def filter_flights(flight)
+      FlightsQuery.new(relation: flight).filter_by(filtering_params)
+    end
+
+    def filtering_params
+      params.slice(:name_cont, :departs_at_eq, :no_of_available_seats_gteq)
+    end
+
+    def response_flight(flight)
+      if jsonapi_serializer?
+        jsonapi_flight(flight)
+      else
+        default_json_flight(flight)
+      end
+    end
+
     def flight_params
       params.require(:flight).permit(:id,
                                      :arrives_at,
@@ -64,7 +79,12 @@ module Api
     end
 
     def default_json_flight(flight)
-      FlightSerializer.render(flight, root: :flight, view: :normal)
+      if root?
+        root_name = flight.is_a?(Flight) ? :flight : :flights
+        FlightSerializer.render(flight, root: root_name, view: :normal)
+      else
+        FlightSerializer.render(flight, view: :normal)
+      end
     end
 
     def jsonapi_flight(flight)

@@ -7,6 +7,11 @@ RSpec.describe 'Flights API', type: :request do
     context 'when flights exist in db' do
       let!(:flights) { create_list(:flight, 3) }
 
+      before do
+        create_list(:booking, 2, flight: flights[1])
+        create_list(:booking, 1, flight: flights[2])
+      end
+
       it 'successfully returns a list of flights when using blueprinter with root' do
         get '/api/flights',
             headers: api_headers
@@ -35,6 +40,112 @@ RSpec.describe 'Flights API', type: :request do
             headers: api_headers(default_serializer: false, not_root: true)
         expect(response).to have_http_status(:ok)
         expect(json_body.count).to eq(flights.count)
+      end
+
+      it 'orders flights by departs_at, name and created_at ASC' do
+        get '/api/flights',
+            headers: api_headers
+
+        sorted_ids = flights.reject { |flight| flight.departs_at <= DateTime.now }
+                            .sort_by do |flight|
+          [flight.departs_at,
+           flight.name,
+           flight.created_at]
+        end
+
+        expect(response).to have_http_status(:ok)
+        expect(json_body['flights'].map(&by_id)).to eq(sorted_ids.map(&by_id))
+      end
+
+      it 'contains only active flights' do
+        get '/api/flights',
+            headers: api_headers
+
+        active_flights_ids = flights.reject { |flight| flight.departs_at <= DateTime.now }
+                                    .map(&by_id)
+
+        expect(response).to have_http_status(:ok)
+        expect(json_body['flights'].map(&by_id)).to eq(active_flights_ids)
+      end
+
+      it 'filters by name' do
+        get '/api/flights',
+            params: { name_cont: 'flight10997' },
+            headers: api_headers
+
+        name_filter_ids = flights.reject { |flight| flight.departs_at <= DateTime.now }
+                                 .select { |flight| flight.name.downcase.include? 'flight10997' }
+                                 .map(&by_id)
+
+        expect(response).to have_http_status(:ok)
+        expect(json_body['flights'].map(&by_id)).to eq(name_filter_ids)
+      end
+
+      it 'filters by departs_at' do
+        get '/api/flights',
+            params: { departs_at_eq: 1.day.from_now.to_date },
+            headers: api_headers
+
+        departs_at_filter_ids = flights.reject { |flight| flight.departs_at <= DateTime.now }
+                                       .select do |flight|
+                                         (flight.departs_at.to_date == 1.day.from_now.to_date)
+                                       end
+
+        expect(response).to have_http_status(:ok)
+        expect(json_body['flights'].map(&by_id)).to eq(departs_at_filter_ids.map(&by_id))
+      end
+
+      it 'filters by number of available seats' do
+        get '/api/flights',
+            params: { no_of_available_seats_gteq: 7 },
+            headers: api_headers
+
+        seats_filter_ids = flights.reject { |f| f.departs_at <= DateTime.now }
+                                  .select { |f| f.no_of_seats - f.bookings.sum(:no_of_seats) >= 7 }
+                                  .map(&by_id)
+
+        expect(response).to have_http_status(:ok)
+        expect(json_body['flights'].map(&by_id)).to eq(seats_filter_ids)
+      end
+
+      it 'has number of booked seats for each flight' do
+        get '/api/flights',
+            headers: api_headers
+
+        seats_ids = flights.reject { |f| f.departs_at <= DateTime.now }.map do |f|
+          { 'id' => f.id, 'no_of_booked_seats' => f.bookings.sum(:no_of_seats) }
+        end
+
+        body_seats_ids = json_body['flights'].map do |f|
+          { 'id' => f['id'], 'no_of_booked_seats' => f['no_of_booked_seats'] }
+        end
+
+        expect(response).to have_http_status(:ok)
+        expect(body_seats_ids).to eq(seats_ids)
+      end
+
+      it 'has name of company for each flight' do
+        get '/api/flights',
+            headers: api_headers
+
+        company_names_ids = flights.reject { |f| f.departs_at <= DateTime.now }.map do |f|
+          { 'id' => f.id, 'company_name' => f.company.name }
+        end
+
+        body_company_names_ids = json_body['flights'].map do |f|
+          { 'id' => f['id'], 'company_name' => f['company_name'] }
+        end
+
+        expect(response).to have_http_status(:ok)
+        expect(body_company_names_ids).to eq(company_names_ids)
+      end
+
+      it 'has current price for each flight' do
+        get '/api/flights',
+            headers: api_headers
+
+        expect(response).to have_http_status(:ok)
+        expect(json_body['flights'][0]).to include('current_price' => anything)
       end
     end
 
@@ -115,6 +226,21 @@ RSpec.describe 'Flights API', type: :request do
 
         expect(Flight.where({ id: id }.merge(flight.serializable_hash.compact))).to exist
       end
+
+      it 'prevents overlapping of flights' do
+        flight = create(:flight)
+        overlapping_flight = build(:flight,
+                                   departs_at: flight.departs_at + 1.hour,
+                                   name: 'overlapping-flight',
+                                   company: flight.company)
+
+        post '/api/flights',
+             params: { flight: overlapping_flight.serializable_hash.compact }.to_json,
+             headers: api_headers.merge({ Authorization: user_admin.token })
+
+        expect(response).to have_http_status(:bad_request)
+        expect(json_body['errors']).to include('departs_at', 'arrives_at')
+      end
     end
 
     context 'when user is authenticated and authorized (admin) and params are invalid' do
@@ -172,32 +298,40 @@ RSpec.describe 'Flights API', type: :request do
   end
 
   describe 'PUT /api/flights/:id' do
-    let!(:flight) { create(:flight) }
+    let!(:flights) { create_list(:flight, 2) }
 
     context 'when user is authenticated and authorized (admin) and params are valid' do
       it 'updates a flight' do
-        put "/api/flights/#{flight.id}",
-            params: { flight: { name: 'Newflight1',
-                                base_price: 999,
+        put "/api/flights/#{flights[0].id}",
+            params: { flight: { base_price: 999,
                                 no_of_seats: 4 } }.to_json,
             headers: api_headers.merge({ Authorization: user_admin.token })
 
         expect(response).to have_http_status(:ok)
-        expect(json_body['flight']).to include('name' => 'Newflight1',
-                                               'base_price' => 999,
+        expect(json_body['flight']).to include('base_price' => 999,
                                                'no_of_seats' => 4,
-                                               'id' => flight.id)
+                                               'id' => flights[0].id)
       end
 
       it 'updates a flight in db' do
-        put "/api/flights/#{flight.id}",
-            params: { flight: { name: 'Newflight1',
-                                base_price: 999,
+        put "/api/flights/#{flights[0].id}",
+            params: { flight: { base_price: 999,
                                 no_of_seats: 4 } }.to_json,
             headers: api_headers.merge({ Authorization: user_admin.token })
 
-        expect(Flight.where(id: flight.id, name: 'Newflight1', base_price: 999,
+        expect(Flight.where(id: flights[0].id, base_price: 999,
                             no_of_seats: 4)).to exist
+      end
+
+      it 'prevents overlapping of flights' do
+        put "/api/flights/#{flights[0].id}",
+            params: { flight: { departs_at: flights[1].departs_at + 1.hour,
+                                arrives_at: flights[1].arrives_at + 1.hour,
+                                company_id: flights[1].company_id } }.to_json,
+            headers: api_headers.merge({ Authorization: user_admin.token })
+
+        expect(response).to have_http_status(:bad_request)
+        expect(json_body['errors']).to include('departs_at', 'arrives_at')
       end
     end
 
@@ -207,7 +341,7 @@ RSpec.describe 'Flights API', type: :request do
       end
 
       it 'returns 400 Bad Request' do
-        put "/api/flights/#{flight.id}",
+        put "/api/flights/#{flights[0].id}",
             params: { flight: { name: '', arrives_at: '',
                                 base_price: '', company_id: '', no_of_seats: '' } }.to_json,
             headers: api_headers.merge({ Authorization: user_admin.token })
@@ -220,7 +354,7 @@ RSpec.describe 'Flights API', type: :request do
 
     context 'when user is authenticated and not authorized' do
       it 'returns 403 Forbidden status' do
-        put "/api/flights/#{flight.id}",
+        put "/api/flights/#{flights[0].id}",
             params: { flight: { name: 'Newflight1',
                                 base_price: 999,
                                 no_of_seats: 4 } }.to_json,
@@ -233,7 +367,7 @@ RSpec.describe 'Flights API', type: :request do
 
     context 'when user is not authenticated' do
       it 'returns 401 Unauthorized status' do
-        put "/api/flights/#{flight.id}",
+        put "/api/flights/#{flights[0].id}",
             params: { flight: { name: 'Newflight1',
                                 base_price: 999,
                                 no_of_seats: 4 } }.to_json,

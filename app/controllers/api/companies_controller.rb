@@ -3,16 +3,21 @@ module Api
     skip_before_action :auth, only: [:index, :show]
 
     def index
-      render json: jsonapi_serializer? ? jsonapi_company(Company.all) : blueprinter_all_companies
+      company = if params[:filter] == 'active'
+                  Company.joins(:flights)
+                         .where('flights.departs_at > ?', DateTime.now)
+                         .distinct
+                         .order(name: :asc)
+                else
+                  Company.order(name: :asc)
+                end
+      company = company.includes(:flights) unless jsonapi_serializer?
+      render json: response_company(company)
     end
 
     def show
       company = Company.find(params[:id])
-      render json: if jsonapi_serializer?
-                     jsonapi_company(company)
-                   else
-                     default_json_company(company)
-                   end
+      render json: response_company(company)
     end
 
     def create
@@ -53,12 +58,25 @@ module Api
 
     private
 
+    def response_company(company)
+      if jsonapi_serializer?
+        jsonapi_company(company)
+      else
+        default_json_company(company)
+      end
+    end
+
     def company_params
       params.require(:company).permit(:id, :name)
     end
 
     def default_json_company(company)
-      CompanySerializer.render(company, root: :company, view: :normal)
+      if root?
+        root_name = company.is_a?(Company) ? :company : :companies
+        CompanySerializer.render(company, root: root_name, view: :normal)
+      else
+        CompanySerializer.render(company, view: :normal)
+      end
     end
 
     def jsonapi_company(company)
